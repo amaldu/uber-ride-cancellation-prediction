@@ -144,11 +144,42 @@ Let's gather all the constrains and their results:
 | Operational capacity | ≤ 80% | Maximum for 50K interventions with 60% precision |
 | Target ROI | ≥ 40% | Requirement decided by the business |
 
-
-### Final metric targets:
-
+Based on these values I will choose a 70% of recall. 
 
 
+### Validation of both metrics → Precision = 60% and Recall = 70%:
+
+```
+TP = caugth cancellations = 0.7 X 37.430 = 26201  
+FP = false alarms = 26.201 x 0.4/0.6 = 17.467 
+Total interactions = 26.201 + 17.467 = 43.668 →  less than operational capacity
+
+&
+
+Savings = 26.201 x 20 x 0.5 = 262.010
+False alarm cost = 17.467 x 5 = 87.335
+Net savings = 262.010 - 87.335 = 174.675 → more than target ROI 
+
+&
+
+Precision  > Break-even precision (20%)
+```
+
+### Final metrics:
+
+Based on the analysis above I decided to choose metrics that:
+
+1. Reflect the cost assymetry of 4:1
+2. Work for moderated class imbalance
+
+
+| Metric | Value | Reasoning |
+|------------|---------------------|-----------------|
+| F2-score  | Since β² =$20/$5 = 4 ≥ 0.68 F2 = 5×P×R / (4P + R) = 0.68 | Weights recall 4x more than precision |
+| Recall | ≥ 70% | Catching FN is the real challenge due to their cost |
+| Precision | ≥ 60% | Also important due to FP costs |
+| PR-AUC Curve | The best possible | Useful because the dataset is imbalanced |
+| Expected profit | ≥ $100K | Final sanity check: Profit = TP×$10 - FP×$5. Validates that model delivers actual business value. |
 
 
 
@@ -156,34 +187,6 @@ Let's gather all the constrains and their results:
 
 
 
-
-
-
-
-**Primary Metrics**:
-
-1. Recall (Sensitivity) % of actual cancellations correctly predicted | ≥ 70% |
-| **Precision** | % of predicted cancellations that were actual cancellations | ≥ 60% |
-| **F1-Score** | Harmonic mean of precision and recall | ≥ 0.65 |
-| **AUC-ROC** | Model's ability to distinguish between classes | ≥ 0.75 |
-
-**Why Recall is Prioritized**:
-- Missing a cancellation (False Negative) means lost revenue and poor customer experience
-- A false alarm (False Positive) only costs a proactive message or incentive
-- The cost of intervention is lower than the cost of cancellation
-
-**Secondary Metrics**:
-- **Precision-Recall AUC**: Better for imbalanced datasets
-- **Confusion Matrix**: Detailed breakdown of prediction types
-- **Lift Chart**: Business value of model vs. random selection
-
-**Business KPIs to Track**:
-- Overall cancellation rate reduction
-- Revenue recovered from prevented cancellations
-- Customer satisfaction scores
-- Driver utilization improvement
-- 
-- We model business cost assuming that missing a cancellation (FN) is 5x more costly than triggering an unnecessary intervention (FP). This assumption was validated with product and ops teams and tested via sensitivity analysis.
 
 ## 1.6 Is the performance measure aligned with the business objective?
 
