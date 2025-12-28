@@ -181,8 +181,6 @@ Based on the analysis above I decided to choose metrics that:
 | PR-AUC Curve | The best possible | Useful because the dataset is imbalanced |
 | Expected profit | ≥ $100K | Final sanity check: Profit = TP×$10 - FP×$5. Validates that model delivers actual business value. |
 
-
-
 ## 1.6 Is the performance measure aligned with the business objective?
 
 Yes, the selected performance measures are aligned with the business objective and cost structure of the cancellation prediction problem.
@@ -197,30 +195,14 @@ Expected profit is used as a post-selection validation metric to make sure that 
 
 ### 1.7 What would be the minimum performance needed to reach the business objective?
 
-**Minimum Viable Performance**:
-
 | Metric | Minimum Threshold | Rationale |
 |--------|-------------------|-----------|
-| Recall | 60% | Must catch majority of cancellations to be useful |
-| Precision | 50% | At least half of flagged bookings should be true risks |
+| F2-Score | ≥ 0.55 | Calculated from minimum P=50%, R=60% |
+| Recall | 60% | From ROI analysis |
+| Precision | 50% | From break-even analysis |
 | F1-Score | 0.55 | Baseline for balanced performance |
-| AUC-ROC | 0.70 | Must be significantly better than random (0.50) |
+| AUC-ROC | 0.25 | Extracted from ositive class proportion |
 
-**Break-Even Analysis**:
-
-If intervention cost is $3 per flagged booking and average saved booking value is $25:
-- Break-even precision = $3 / $25 = 12%
-- Any precision above 12% generates positive ROI
-- Our 50% minimum threshold provides significant safety margin
-
-**Stretch Goals**:
-
-| Metric | Target | Stretch |
-|--------|--------|---------|
-| Recall | 70% | 80% |
-| Precision | 60% | 70% |
-| F1-Score | 0.65 | 0.75 |
-| AUC-ROC | 0.75 | 0.85 |
 
 ### 1.8 What are comparable problems? Can you reuse experience or tools?
 
