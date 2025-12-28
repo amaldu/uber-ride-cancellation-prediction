@@ -206,38 +206,7 @@ Expected profit is used as a post-selection validation metric to make sure that 
 
 ### 1.8 What are comparable problems? Can you reuse experience or tools?
 
-**Directly Comparable Problems**:
-
-1. **Customer Churn Prediction**
-   - Similar: Predicting customer behavior before it happens
-   - Reusable: Feature engineering approaches, imbalanced classification techniques
-   - Tools: Scikit-learn, XGBoost, SHAP for interpretability
-
-2. **Hotel/Restaurant No-Show Prediction**
-   - Similar: Predicting booking cancellations in service industry
-   - Reusable: Time-based features, customer history patterns
-   - Research: Extensive literature on hospitality no-show prediction
-
-3. **Flight Cancellation Prediction**
-   - Similar: Transportation booking cancellations
-   - Reusable: Weather, time, and route-based features
-   - Difference: More external factors (weather) in flights
-
-4. **E-commerce Cart Abandonment**
-   - Similar: Predicting incomplete transactions
-   - Reusable: Behavioral features, session analysis
-   - Tools: Funnel analysis techniques
-
-**Reusable Tools and Techniques**:
-
-| Tool/Technique | Application |
-|----------------|-------------|
-| XGBoost/LightGBM | High-performance gradient boosting |
-| SMOTE/ADASYN | Handling class imbalance |
-| SHAP | Model interpretability |
-| Optuna/Hyperopt | Hyperparameter optimization |
-| MLflow | Experiment tracking |
-| Scikit-learn Pipelines | Reproducible preprocessing |
+No because it's the first project in this company :)
 
 ### 1.9 Is human expertise available?
 
