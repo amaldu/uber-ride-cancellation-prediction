@@ -183,29 +183,17 @@ Based on the analysis above I decided to choose metrics that:
 
 
 
-
-
-
-
-
 ## 1.6 Is the performance measure aligned with the business objective?
 
-**Yes, with the following alignment**:
+Yes, the selected performance measures are aligned with the business objective and cost structure of the cancellation prediction problem.
 
-| Business Objective | Performance Measure | Alignment |
-|-------------------|---------------------|-----------|
-| Reduce cancellation rate | High Recall | Catching more at-risk bookings enables intervention |
-| Minimize operational overhead | Reasonable Precision | Avoid flooding ops team with false alarms |
-| Improve customer experience | F1-Score balance | Balanced approach prevents over-intervention |
-| Maximize ROI | AUC-ROC | Overall model quality ensures sustainable improvement |
+Given the asymmetric cost of errors, where recall is weighted four times more heavily than precision, I need to use of the F2-score as the primary optimization metric so I can reflect the higher business impact of missed cancellations.
 
-**Cost-Benefit Analysis**:
+Recall is constrained to be at least 70% to ensure that the majority of cancellation events are detected and precision is constrained to be at least 60% to limit unnecessary intervention and extra operational costs.
 
-- **Cost of False Negative** (missed cancellation): Lost booking value (~$15-50 average) + customer dissatisfaction
-- **Cost of False Positive** (unnecessary intervention): Cost of incentive (~$2-5) + operational time
-- **Ratio**: ~10:1 favoring recall over precision
+Since the dataset is imbalanced, the Precision–Recall (PR) curve is used for model comparison.
 
-This justifies our emphasis on recall while maintaining acceptable precision.
+Expected profit is used as a post-selection validation metric to make sure that these metrics have a translation into business value.
 
 ### 1.7 What would be the minimum performance needed to reach the business objective?
 
