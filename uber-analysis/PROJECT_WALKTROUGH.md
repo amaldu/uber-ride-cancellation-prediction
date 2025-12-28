@@ -210,27 +210,15 @@ No because it's the first project in this company :)
 
 ### 1.9 Is human expertise available?
 
-**Available Expertise**:
+There should be but this is just a ML checklist so I'm going to guess a lot: 
 
-1. **Domain Knowledge from Dataset**:
-   - Cancellation reasons are documented (Wrong Address, Driver Issues, etc.)
-   - Vehicle type performance metrics available
-   - Payment method patterns documented
+The dataset provides domain knowledge, including documented cancellation reasons (wrong address, driver-related issues), vehicle-type performance metrics, and observable patterns related to payment methods.
 
-2. **Industry Knowledge**:
-   - Ride-sharing operations best practices
-   - Common cancellation triggers in transportation
-   - Customer behavior patterns in on-demand services
+From the company I would probably be able to obtain general industry knowledge of ride-sharing operations like common cancellation triggers in transportation services, established operational best practices, and typical customer behavior patterns in on-demand mobility platforms, etc.
 
-3. **Data Science Expertise**:
-   - Classification modeling experience
-   - Imbalanced data handling
-   - Feature engineering for temporal data
+Data science expertise is also available in the topics of binary classification modeling, imbalanced datasets, engineering temporal and behavioral features, etc. 
 
-**Knowledge to Acquire**:
-- Specific Uber operational constraints
-- Regional factors affecting NCR (National Capital Region) rides
-- Peak hour definitions and surge pricing impact
+However, certain knowledge gaps that come to my mind would need to be addressed like Uber operational constraints, regional factors affecting rides, clear definitions of peak hours and the impact of surge pricing...
 
 ### 1.10 How would you solve the problem manually?
 
