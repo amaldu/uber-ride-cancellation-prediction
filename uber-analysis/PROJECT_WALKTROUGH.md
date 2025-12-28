@@ -222,38 +222,33 @@ However, certain knowledge gaps that come to my mind would need to be addressed 
 
 ### 1.10 How would you solve the problem manually?
 
-**Manual Rule-Based Approach**:
+Heuristic approach with rules I can think of:
 
-A human analyst would flag bookings as high-risk based on:
-
-1. **Time-Based Rules**:
-   - Late night bookings (11 PM - 5 AM): Higher cancellation risk
-   - Rush hour bookings: Driver availability issues
+1. Time-Based Rules:
+   - Late night bookings (11 PM - 5 AM): higher cancellation risk
+   - Rush hour bookings: the driver availability issues
    - Weekend vs. weekday patterns
 
-2. **Location-Based Rules**:
+2. Location-Based Rules:
    - Known problematic pickup locations (poor GPS, restricted access)
-   - Long-distance routes: Higher driver cancellation
-   - Airport/station pickups: Customer plan changes
+   - Long-distance routes: higher driver cancellation
+   - Airport/station pickups: the customer plan changes
 
-3. **Vehicle Type Rules**:
-   - Premium vehicles (Premier Sedan): Lower cancellation
-   - Budget options (Auto, eBike): Customer price sensitivity
+3. Vehicle Type Rules:
+   - Premium vehicles (Premier Sedan): lower cancellation
+   - Budget options (Auto, eBike): customer price sensitivity
 
-4. **Customer History** (if available):
-   - Previous cancellation history
+4. Customer History (if available):
+   - Previous cancellaton history
    - Rating patterns
    - Payment method reliability
 
-5. **Real-Time Factors**:
+5. Real-Time Factors:
    - High VTAT (Vehicle Time to Arrival): Customer impatience
-   - Surge pricing active: Customer may cancel after seeing final price
+   - Surge pricing active: the customer may cancel after seeing final price
 
-**Limitations of Manual Approach**:
-- Cannot process thousands of bookings in real-time
-- Rules are static, don't adapt to changing patterns
-- Cannot capture complex feature interactions
-- Inconsistent application across different operators
+But this approach has limitations because its rules are static and they cannot capture complext interactions
+
 
 ### 1.11 List the assumptions you (or others) have made so far
 
