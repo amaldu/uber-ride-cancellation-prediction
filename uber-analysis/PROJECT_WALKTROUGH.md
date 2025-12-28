@@ -252,32 +252,27 @@ But this approach has limitations because its rules are static and they cannot c
 
 ### 1.11 List the assumptions you (or others) have made so far
 
-**Data Assumptions**:
+Data Assumptions:
+1. The 2024 dataset is representative of typical booking patterns
+2. Cancellation reasons are accurately recorded
+3. All relevant features are captured in the dataset
+4. Patterns in 2024 will persist into future periods
+5. Features available at booking time don't include post-booking information
 
-1. **Representativeness**: The 2024 dataset is representative of typical booking patterns
-2. **Data Quality**: Cancellation reasons are accurately recorded
-3. **Completeness**: All relevant features are captured in the dataset
-4. **Stationarity**: Patterns in 2024 will persist into future periods
-5. **No Data Leakage**: Features available at booking time don't include post-booking information
+Business Assumptions:
+1. Proactive measures can actually prevent cancellations
+2. Intervention costs are lower than cancellation costs
+3. Customers will respond positively to interventions
 
-**Business Assumptions**:
+Technical Assumptions:
+1.  All features used in training will be available at inference time
+2.  Model can score bookings within acceptable time (<100ms)
+3.  Deployment infrastructure exists or can be built
 
-6. **Intervention Effectiveness**: Proactive measures can actually prevent cancellations
-7. **Cost Structure**: Intervention costs are lower than cancellation costs
-8. **Operational Capacity**: Operations team can act on model predictions
-9. **Customer Response**: Customers will respond positively to interventions
-
-**Technical Assumptions**:
-
-10. **Feature Availability**: All features used in training will be available at inference time
-11. **Latency Requirements**: Model can score bookings within acceptable time (<100ms)
-12. **Infrastructure**: Deployment infrastructure exists or can be built
-
-**Model Assumptions**:
-
-13. **Linear Separability**: Some degree of separability exists between cancelled and completed rides
-14. **Feature Relevance**: Available features contain signal for prediction
-15. **Generalization**: Model trained on historical data will generalize to new bookings
+Model Assumptions:
+1.  Some degree of separability exists between cancelled and completed rides
+2.  Available features contain signal for prediction
+3.  Model trained on historical data will generalize to new bookings
 
 ### 1.12 Verify assumptions if possible
 
