@@ -193,7 +193,7 @@ Since the dataset is imbalanced, the Precision–Recall (PR) curve is used for m
 
 Expected profit is used as a post-selection validation metric to make sure that these metrics have a translation into business value.
 
-### 1.7 What would be the minimum performance needed to reach the business objective?
+## 1.7 What would be the minimum performance needed to reach the business objective?
 
 | Metric | Minimum Threshold | Rationale |
 |--------|-------------------|-----------|
@@ -204,11 +204,11 @@ Expected profit is used as a post-selection validation metric to make sure that 
 | AUC-ROC | 0.25 | Extracted from ositive class proportion |
 
 
-### 1.8 What are comparable problems? Can you reuse experience or tools?
+## 1.8 What are comparable problems? Can you reuse experience or tools?
 
 No because it's the first project in this company :)
 
-### 1.9 Is human expertise available?
+## 1.9 Is human expertise available?
 
 There should be but this is just a ML checklist so I'm going to guess a lot: 
 
@@ -220,7 +220,7 @@ Data science expertise is also available in the topics of binary classification 
 
 However, certain knowledge gaps that come to my mind would need to be addressed like Uber operational constraints, regional factors affecting rides, clear definitions of peak hours and the impact of surge pricing...
 
-### 1.10 How would you solve the problem manually?
+## 1.10 How would you solve the problem manually?
 
 Heuristic approach with rules I can think of:
 
@@ -250,7 +250,7 @@ Heuristic approach with rules I can think of:
 But this approach has limitations because its rules are static and they cannot capture complext interactions
 
 
-### 1.11 List the assumptions you (or others) have made so far
+## 1.11 List the assumptions you (or others) have made so far
 
 Data Assumptions:
 1. The 2024 dataset is representative of typical booking patterns
@@ -296,7 +296,6 @@ These are the assumptions that require business input and post-deplopyment monit
 | Feature availability | Data pipeline monitoring |
 | Customer response | Intervention success rate tracking |
 
----
 
 ## 2. Get the Data
 
