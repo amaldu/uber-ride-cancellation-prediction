@@ -275,29 +275,23 @@ Model Assumptions:
 3.  Model trained on historical data will generalize to new bookings
 
 ### 1.12 Verify assumptions if possible
-
-**Verifiable Assumptions**:
+Since this is the first version of the project those will be the project I will only show the following assumptions:
 
 | Assumption | Verification Method | Status |
 |------------|---------------------|--------|
-| Data completeness | Check missing value rates | To verify in EDA |
-| Feature distributions | Statistical analysis | To verify in EDA |
+| Data completeness | Check missing value rates | to verify in EDA |
+| Feature distributions | perform a statistical analysis | To verify in EDA |
 | Class balance | Count target classes | Verified: 25% cancellation rate |
-| Temporal patterns | Time series analysis | To verify in EDA |
-| Feature correlations | Correlation analysis | To verify in EDA |
+| Temporal patterns | Time-series analysis | To vrify in EDA |
+| Feature correlations | perform a correlation analysis | To verify in EDA |
 
-**Assumptions Requiring Business Input**:
+These are the assumptions that require business input and post-deplopyment monitorization: 
 
 | Assumption | Required Information |
 |------------|---------------------|
 | Intervention effectiveness | A/B test results or pilot data |
-| Cost structure | Finance team input |
+| Cost structure | Finance or Ops team input |
 | Operational capacity | Operations team assessment |
-
-**Assumptions to Monitor Post-Deployment**:
-
-| Assumption | Monitoring Approach |
-|------------|---------------------|
 | Pattern stationarity | Model performance drift detection |
 | Feature availability | Data pipeline monitoring |
 | Customer response | Intervention success rate tracking |
