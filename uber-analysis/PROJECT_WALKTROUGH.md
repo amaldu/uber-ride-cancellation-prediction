@@ -274,8 +274,11 @@ Model Assumptions:
 2.  Available features contain signal for prediction
 3.  Model trained on historical data will generalize to new bookings
 
-### 1.12 Verify assumptions if possible
-Since this is the first version of the project those will be the project I will only show the following assumptions:
+## 1.12 Verify assumptions if possible
+
+First of all I assume that the dataset contains all relevant features required to model the target variable, and that no critical predictive information is systematically missing.
+
+Since this is the first version of the project those will be the project I will only verify the following assumptions:
 
 | Assumption | Verification Method | Status |
 |------------|---------------------|--------|
@@ -285,7 +288,7 @@ Since this is the first version of the project those will be the project I will 
 | Temporal patterns | Time-series analysis | To vrify in EDA |
 | Feature correlations | perform a correlation analysis | To verify in EDA |
 
-These are the assumptions that require business input and post-deplopyment monitorization: 
+These are the assumptions that require business input and post-deplopyment monitorization that can be verified after the model is deployed: 
 
 | Assumption | Required Information |
 |------------|---------------------|
@@ -297,31 +300,19 @@ These are the assumptions that require business input and post-deplopyment monit
 | Customer response | Intervention success rate tracking |
 
 
-## 2. Get the Data
+# 2. Get the Data
+## 2.1 List the data you need and how much you need
 
-### 2.1 List the data you need and how much you need
-
-**Required Data**:
-
-| Data Type | Description | Minimum Size |
-|-----------|-------------|--------------|
-| Historical Bookings | Complete booking records with outcomes | 100,000+ records |
-| Booking Features | Time, location, vehicle type, payment method | All available columns |
-| Outcome Labels | Booking status (completed, cancelled, incomplete) | For all records |
-| Cancellation Details | Reason codes for cancelled rides | Where available |
-| Customer/Driver IDs | For behavioral pattern analysis | Anonymized identifiers |
-
-**Available Data**:
+**Characteristics of the available Data**:
 - **148,770 booking records** from 2024
-- **20 columns** covering all required feature categories
-- **Full year coverage** with daily granularity
-- **Cancellation reasons** for both customer and driver cancellations
+- **20 columns** covering all required feature categories (according to what is assumed in the previous section)
+- **Full year coverage** with timestamp-level granularity
 
 **Data Sufficiency Assessment**:
 - ✅ Sample size adequate for ML modeling (>100K records)
 - ✅ Positive class (cancellations) has sufficient examples (~37K)
 - ✅ Multiple feature categories available
-- ✅ Temporal coverage spans full year (seasonal patterns captured)
+- ✅ Temporal coverage spans full year 
 
 ### 2.2 Find and document where you can get that data
 
