@@ -250,7 +250,7 @@ Heuristic approach with rules I can think of:
 But this approach has limitations because its rules are static and they cannot capture complext interactions
 
 
-## 1.11 List the assumptions you (or others) have made so far
+## 1.11 List the assumptions made so far
 
 Data Assumptions:
 1. The 2024 dataset is representative of typical booking patterns
@@ -276,21 +276,21 @@ Model Assumptions:
 
 ## 1.12 Verify assumptions if possible
 
-First of all I assume that the dataset contains all relevant features required to model the target variable, and that no critical predictive information is systematically missing.
+At this stage, I assume that the dataset contains all relevant features required to model the target variable, and that no critical predictive information is systematically missing.
 
-Since this is the first version of the project those will be the project I will only verify the following assumptions:
+Since this is the first version of the project those will be the project I will only verify the following assumptions in the `02_assumptions.ipynb` notebook:
 
-| Assumption | Verification Method | Status |
-|------------|---------------------|--------|
-| Data completeness | Check missing value rates | to verify in EDA |
-| Feature distributions | perform a statistical analysis | To verify in EDA |
-| Class balance | Count target classes | Verified: 25% cancellation rate |
-| Temporal patterns | Time-series analysis | To vrify in EDA |
-| Feature correlations | perform a correlation analysis | To verify in EDA |
+| Assumption | Verification Method | 
+|------------|---------------------|
+| Data completeness | Number of columns and rows match the document | 
+| Time coverage | The dataset represents data from the whole year 2024 |
+| Class balance | Verify that the imbalance is 25% | Verified: 25% cancellation rate |
+| Valid target | Target column exists and it's in the format that the business needs to predict | 
+| No obvious data leakage | Post-cancellation columns are removed | 
 
-These are the assumptions that require business input and post-deplopyment monitorization that can be verified after the model is deployed: 
+These assumptions require business input and post-deplopyment monitorization that can be verified after the model is deployed: 
 
-| Assumption | Required Information |
+| Assumption | Verification method |
 |------------|---------------------|
 | Intervention effectiveness | A/B test results or pilot data |
 | Cost structure | Finance or Ops team input |
