@@ -280,13 +280,13 @@ At this stage, I assume that the dataset contains all relevant features required
 
 Since this is the first version of the project those will be the project I will only verify the following assumptions in the `02_assumptions.ipynb` notebook:
 
-| Assumption | Verification Method | 
-|------------|---------------------|
-| Data completeness | Number of columns and rows match the document | 
-| Time coverage | The dataset represents data from the whole year 2024 |
-| Class balance | Verify that the imbalance is 25% | Verified: 25% cancellation rate |
-| Valid target | Target column exists and it's in the format that the business needs to predict | 
-| No obvious data leakage | Post-cancellation columns are removed | 
+| Assumption | Verification Method | Status | Action taken |
+|------------|---------------------|--------|--------------|
+| Data completeness | Number of columns and rows match the document | Amount of columns and rows is different | Updated document |
+| Time coverage | The dataset represents data from the whole year 2024 | 31st of December is missing | Contact Ops team to obtain the data |
+| Class balance | Verify that the imbalance is 25% | Verified: 25% cancellation rate | None |
+| Valid target | Target column exists and it's in the format that the business needs to predict | More labels than needed | Define what is cancelled and classify the labels into 2 categories |
+| No obvious data leakage | Post-cancellation columns are removed | Verified | None |
 
 These assumptions require business input and post-deplopyment monitorization that can be verified after the model is deployed: 
 
@@ -304,14 +304,13 @@ These assumptions require business input and post-deplopyment monitorization tha
 ## 2.1 List the data 
 
 **Characteristics of the available Data**:
-- **148,770 booking records** from 2024
-- **20 columns** covering all required feature categories (according to what is assumed in the previous section)
-- **Full year coverage** with timestamp-level granularity
+- **150.000 booking records** from 2024
+- **21 columns** covering all required feature categories (according to what is assumed in the previous section)
+- **Full year coverage** with daily granularity
 
 **Data Sufficiency Assessment**:
 - The sample size is adequate for ML modeling 
 - The positive class (cancellations) has sufficient examples (25% of that class)
-- All the categories are represented and have enough positive class examples
 - Temporal coverage spans full year with time-stamp granularity
 
 ## 2.2 Origin of the dataset
