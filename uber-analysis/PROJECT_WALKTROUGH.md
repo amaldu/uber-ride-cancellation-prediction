@@ -367,3 +367,88 @@ There are two other files:
    export KAGGLE_USERNAME="your_username"
    export KAGGLE_KEY="your_api_key"
    ```
+
+## 2.6 Data ingestion and overview
+
+The data has been downloaded using the Kaggle API as documented in `notebooks/03_initial_data_inspection.ipynb`
+:
+
+- File location: `uber-analysis/data/raw/ncr_ride_bookings.csv`
+- Download date: As per notebook execution
+- Ingestion: CSV file loads successfully with pandas
+
+## 2.7 Format of the data
+
+| Stage | Format | Purpose |
+|-------|--------|---------|
+| Raw | CSV | Original data preservation |
+| Working | Pandas DataFrame | Analysis and transformation |
+| Processed | Parquet | Efficient storage with types preserved |
+
+## 2.8 Sensitive data analysis (PPI):
+
+The following columns are suspected to contain PII. After performing a quick overview in 03_initial_inspection.ipynb, I can summarize their characteristics and the actions to take:
+
+| Column | Status | Action |
+|--------|-------------|--------|
+| Customer ID | anonymized | Keep as-is |
+| Booking ID | synthetic codes | Keep as-is |
+| Pickup Location | area names | Keep as-is |
+| Drop Location | area names | Keep as-is |
+| Payment Method | type only | Keep as-is |
+
+## 2.9 Size and type of data
+
+###  Dataset Characteristics
+
+| Attribute | Value |
+|-----------|-------|
+| Total Records | 148,770 |
+| Total Features | 20 columns |
+| Data Type | Tabular (structured) |
+| Temporal Scope | Year 2024 |
+| Geographic Scope | NCR (National Capital Region) |
+| Update Frequency | Static dataset |
+
+### Data transformations
+
+| Transformation | Columns | Actions | 
+|----------------|---------|---------|
+| snake case | all dataset | remove spaces, lowercase and add underscores \
+| map target | "cancelled" column | "Completed": 0, "Cancelled by Driver": 1, "No Driver Found": 1, "Cancelled by Customer": 1,"Incomplete": 0 |
+| format Identifiers | "booking_id", "customer_id" | remove quotes |
+
+### Data Types by Category
+
+| Category | Columns | Old Type | New Type |
+|---------------|---------|----------------|------------------|
+| Temporal | date, time, datetime  | object | datetime |
+| Identifiers | booking_id, customer_id  | object  | string |
+| Categorical| vehicle_type, booking_status, pickup_location, drop_location, payment_method | object | category |
+| Numerical | avg_vtat, avg_ctat, booking_value, ride_distance, driver_ratings, customer_rating | float64, int64 | float32 |
+| Boolean/Flag | cancelled, cancelled_rides_by_customer, cancelled_rides_by_driver, incomplete_rides | float64 | float32  |
+| Text | reason_for_cancelling_by_customer, driver_cancellation_reason, incomplete_rides_reason | object | string
+
+## Time Series Considerations
+- Data has temporal ordering (Date, Time)
+- Can analyze trends, seasonality, and patterns
+- Train/test split should respect temporal order for realistic evaluation
+
+## 2.10 Train/test/val split strategy
+
+The strategy to follow is a time-based split to maintain:
+1. Class distribution (cancellation rate)
+2. Temporal ordering (avoid data leakage)
+
+The split ratios have the following characteristics:
+
+| Set | Percentage | Records | Purpose |
+|-----|------------|---------|---------|
+| Training | 70% | ~104,000 | Model training |
+| Validation | 15% | ~22,000 | Hyperparameter tuning |
+| Test | 15% | ~22,000 | Final evaluation |
+
+# EDA analysis 
+
+## 
+
