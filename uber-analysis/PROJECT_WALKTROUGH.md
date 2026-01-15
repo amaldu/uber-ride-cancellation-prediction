@@ -286,7 +286,7 @@ Since this is the first version of the project those will be the project I will 
 | Time coverage | The dataset represents data from the whole year 2024 | 31st of December is missing | Contact Ops team to obtain the data |
 | Class balance | Verify that the imbalance is 25% | Verified: 25% cancellation rate | None |
 | Valid target | Target column exists and it's in the format that the business needs to predict | More labels than needed | Define what is cancelled and classify the labels into 2 categories |
-| No obvious data leakage | Post-cancellation columns are removed | Verified | None |
+| No obvious data leakage | Post-cancellation columns are removed | Verified | 7 columns have to be removed by leakage or redundance |
 
 These assumptions require business input and post-deplopyment monitorization that can be verified after the model is deployed: 
 
@@ -415,8 +415,11 @@ The following columns are suspected to contain PII. After performing a quick ove
 | Transformation | Columns | Actions | 
 |----------------|---------|---------|
 | snake case | all dataset | remove spaces, lowercase and add underscores \
-| map target | "cancelled" column | "Completed": 0, "Cancelled by Driver": 1, "No Driver Found": 1, "Cancelled by Customer": 1,"Incomplete": 0 |
+| map target | "cancelled" | "Completed": 0, "Cancelled by Driver": 1, "No Driver Found": 1, "Cancelled by Customer": 1,"Incomplete": 0 |
 | format Identifiers | "booking_id", "customer_id" | remove quotes |
+| data leakage analysis | all columns | remove potential leaking and redundant columns 
+
+#FIXME - leaking columns have to be removed from here onwards
 
 ### Data Types by Category
 
@@ -436,19 +439,21 @@ The following columns are suspected to contain PII. After performing a quick ove
 
 ## 2.10 Train/test/val split strategy
 
-The strategy to follow is a time-based split to maintain:
-1. Class distribution (cancellation rate)
-2. Temporal ordering (avoid data leakage)
-
-The split ratios have the following characteristics:
+The dataset was split into training, validation, and test sets using a chronological strategy.
+The dataset was split temporally. Holiday periods such as December were intentionally kept in the test set in order to evaluate the model’s robustness under seasonal regime shifts and peak-demand conditions. Training and validation sets will be used to tune the model under regular operating conditions
 
 | Set | Percentage | Records | Purpose |
 |-----|------------|---------|---------|
-| Training | 70% | ~104,000 | Model training |
-| Validation | 15% | ~22,000 | Hyperparameter tuning |
-| Test | 15% | ~22,000 | Final evaluation |
+| Training | 75% | ~112,000 | Model training |
+| Validation | 15% | ~25,000 | Hyperparameter tuning |
+| Test | 10% | ~12,000 | Final evaluation |
 
-# EDA analysis 
+# 3. EDA insights
 
-## 
+## Univariate Analysis
 
+### Date
+   - The range goes until the 30th of December. It's necessary to contact Ops team and figure out what happened here. 
+   - 
+
+#NOTE - check above another anchor
