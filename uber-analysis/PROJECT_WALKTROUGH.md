@@ -397,49 +397,46 @@ The following columns are suspected to contain PII. After performing a quick ove
 | Drop Location | area names | Keep as-is |
 | Payment Method | type only | Keep as-is |
 
-## 2.9 Size and type of data
 
-###  Dataset Characteristics
+# 3. EDA insights
+
+## 3.1 Size and type of data
 
 | Attribute | Value |
 |-----------|-------|
-| Total Records | 148,770 |
-| Total Features | 20 columns |
+| Total Records | 150.000 |
+| Total Features | 21 columns |
 | Data Type | Tabular (structured) |
 | Temporal Scope | Year 2024 |
 | Geographic Scope | NCR (National Capital Region) |
 | Update Frequency | Static dataset |
 
-### Data transformations
+## 3.2 Cleaning and preprocessing steps 
 
 | Transformation | Columns | Actions | 
 |----------------|---------|---------|
 | snake case | all dataset | remove spaces, lowercase and add underscores \
-| map target | "cancelled" | "Completed": 0, "Cancelled by Driver": 1, "No Driver Found": 1, "Cancelled by Customer": 1,"Incomplete": 0 |
+| map target | "is_cancelled" | "Completed": 0, "Cancelled by Driver": 1, "No Driver Found": 1, "Cancelled by Customer": 1,"Incomplete": 0 |
 | format Identifiers | "booking_id", "customer_id" | remove quotes |
 | data leakage analysis | all columns | remove potential leaking and redundant columns 
 
-#FIXME - leaking columns have to be removed from here onwards
+### 3.2.1 Data Leakage Analysis
 
-### Data Types by Category
+The following columns have been removed:
 
-| Category | Columns | Old Type | New Type |
-|---------------|---------|----------------|------------------|
-| Temporal | date, time, datetime  | object | datetime |
-| Identifiers | booking_id, customer_id  | object  | string |
-| Categorical| vehicle_type, booking_status, pickup_location, drop_location, payment_method | object | category |
-| Numerical | avg_vtat, avg_ctat, booking_value, ride_distance, driver_ratings, customer_rating | float64, int64 | float32 |
-| Boolean/Flag | cancelled, cancelled_rides_by_customer, cancelled_rides_by_driver, incomplete_rides | float64 | float32  |
-| Text | reason_for_cancelling_by_customer, driver_cancellation_reason, incomplete_rides_reason | object | string
+| Column | Reason | 
+|---------|--------|
+| Cancelled Rides by Driver | Information from the future | 
+| Cancelled Rides by Customer| Information from the future |
+| Reason for cancelling by Customer | Information from the future
+| Driver Cancellation Reason| Information from the future
+| Incomplete Rides| Redundant information
+| Incomplete Rides Reason | Information from the future
+| Driver Ratings| Redundant information
+| Customer Rating| Redundant information
 
-## Time Series Considerations
-- Data has temporal ordering (Date, Time)
-- Can analyze trends, seasonality, and patterns
-- Train/test split should respect temporal order for realistic evaluation
+## 3.3 Train/test/val split strategy
 
-## 2.10 Train/test/val split strategy
-
-The dataset was split into training, validation, and test sets using a chronological strategy.
 The dataset was split temporally. Holiday periods such as December were intentionally kept in the test set in order to evaluate the model’s robustness under seasonal regime shifts and peak-demand conditions. Training and validation sets will be used to tune the model under regular operating conditions
 
 | Set | Percentage | Records | Purpose |
@@ -450,10 +447,49 @@ The dataset was split temporally. Holiday periods such as December were intentio
 
 # 3. EDA insights
 
+The size of the dataset has been reduced to the training set with:
+
+- 112.705 rows
+- 13 columns
+- 25.5 MB
+  
+From now on I will continue with the analysis of the training set but further analysis should be made (only!) to do a basic check on distribution consistency along all datasets.
+
 ## Univariate Analysis
 
-### Date
+### date
    - The range goes until the 30th of December. It's necessary to contact Ops team and figure out what happened here. 
-   - 
+### time	
+### booking_id	
+### customer_id	
+### vehicle_type	
+### pickup_location	
+### drop_location	
+### avg_vtat	
+### avg_ctat	
+### booking_value	
+### ride_distance	
+### payment_method	
+### is_cancelled (target)
 
-#NOTE - check above another anchor
+
+
+
+
+
+
+
+
+
+
+### Data Types by Category
+
+| Category | Columns | Old Type | New Type | Additional Explanation |
+|---------------|---------|----------------|------------------|-------------|
+| Temporal | date  | object | datetime |
+| Temporal | time  | object | object | This variable contains only hours so it will be merged with "date" in future steps |
+| Identifiers | booking_id, customer_id  | object  | string |
+| Categorical| vehicle_type, booking_status, pickup_location, drop_location, payment_method | object | category |
+| Numerical | avg_vtat, avg_ctat, booking_value, ride_distance, driver_ratings, customer_rating | float64, int64 | float32 |
+| Boolean/Flag | cancelled, cancelled_rides_by_customer, cancelled_rides_by_driver, incomplete_rides | float64 | float32  |
+| Text | reason_for_cancelling_by_customer, driver_cancellation_reason, incomplete_rides_reason | object | string
