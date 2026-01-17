@@ -370,7 +370,7 @@ There are two other files:
 
 ## 2.6 Data ingestion and overview
 
-The data has been downloaded using the Kaggle API as documented in `notebooks/03_initial_data_inspection.ipynb`
+The data has been downloaded using the Kaggle API as documented in `notebooks/03_eda.ipynb`
 :
 
 - File location: `uber-analysis/data/raw/ncr_ride_bookings.csv`
@@ -411,6 +411,31 @@ The following columns are suspected to contain PII. After performing a quick ove
 | Geographic Scope | NCR (National Capital Region) |
 | Update Frequency | Static dataset |
 
+```
+ #   Column                             Non-Null Count   Dtype  
+---  ------                             --------------   -----  
+ 0   Date                               150000 non-null  object 
+ 1   Time                               150000 non-null  object 
+ 2   Booking ID                         150000 non-null  object 
+ 3   Booking Status                     150000 non-null  object 
+ 4   Customer ID                        150000 non-null  object 
+ 5   Vehicle Type                       150000 non-null  object 
+ 6   Pickup Location                    150000 non-null  object 
+ 7   Drop Location                      150000 non-null  object 
+ 8   Avg VTAT                           139500 non-null  float64
+ 9   Avg CTAT                           102000 non-null  float64
+ 10  Cancelled Rides by Customer        10500 non-null   float64
+ 11  Reason for cancelling by Customer  10500 non-null   object 
+ 12  Cancelled Rides by Driver          27000 non-null   float64
+ 13  Driver Cancellation Reason         27000 non-null   object 
+ 14  Incomplete Rides                   9000 non-null    float64
+ 15  Incomplete Rides Reason            9000 non-null    object 
+ 16  Booking Value                      102000 non-null  float64
+ 17  Ride Distance                      102000 non-null  float64
+ 18  Driver Ratings                     93000 non-null   float64
+ 19  Customer Rating                    93000 non-null   float64
+ 20  Payment Method                     102000 non-null  object 
+```
 ## 3.2 Cleaning and preprocessing steps 
 
 | Transformation | Columns | Actions | 
@@ -435,6 +460,25 @@ The following columns have been removed:
 | Driver Ratings| Redundant information
 | Customer Rating| Redundant information
 
+#### Resulting dataset with data types optimized 
+```
+ 0   date             150000 non-null  datetime64[ns]
+ 1   time             150000 non-null  object        
+ 2   booking_id       150000 non-null  string        
+ 3   customer_id      150000 non-null  string        
+ 4   vehicle_type     150000 non-null  category      
+ 5   pickup_location  150000 non-null  category      
+ 6   drop_location    150000 non-null  category      
+ 7   avg_vtat         139500 non-null  float32       
+ 8   avg_ctat         102000 non-null  float32       
+ 9   booking_value    102000 non-null  float32       
+ 10  ride_distance    102000 non-null  float32       
+ 11  payment_method   102000 non-null  category      
+ 12  is_cancelled     150000 non-null  float32   
+ ```    
+
+
+#FIXME - move this to later
 ## 3.3 Train/test/val split strategy
 
 The dataset was split temporally. Holiday periods such as December were intentionally kept in the test set in order to evaluate the model’s robustness under seasonal regime shifts and peak-demand conditions. Training and validation sets will be used to tune the model under regular operating conditions
@@ -445,31 +489,41 @@ The dataset was split temporally. Holiday periods such as December were intentio
 | Validation | 15% | ~25,000 | Hyperparameter tuning |
 | Test | 10% | ~12,000 | Final evaluation |
 
-# 3. EDA insights
+## Basic Analysis
 
-The size of the dataset has been reduced to the training set with:
 
-- 112.705 rows
-- 13 columns
-- 25.5 MB
-  
-From now on I will continue with the analysis of the training set but further analysis should be made (only!) to do a basic check on distribution consistency along all datasets.
+There are no duplicated rows
 
 ## Univariate Analysis
 
+  
 ### date
-   - The range goes until the 30th of December. It's necessary to contact Ops team and figure out what happened here. 
+- Range: 2024-01-01 to 2024-09-30. Need to contact Ops Team to discover why we have no data from the 31st of Dec.
+- Unique values = 365 because is leap year 
+
 ### time	
+- Type: object. Impossible to convert into datatime without a "date"
+  
+### new: datetime
+Merge of date and time
+
+
 ### booking_id	
+- Type: 
 ### customer_id	
 ### vehicle_type	
+There are some values that need further information. For example the "Auto" 
 ### pickup_location	
 ### drop_location	
 ### avg_vtat	
+- Contains NaNs
 ### avg_ctat	
 ### booking_value	
+- Contains NaNs
 ### ride_distance	
+- Contains NaNs
 ### payment_method	
+- Contains NaNs, what do they mean? 
 ### is_cancelled (target)
 
 
