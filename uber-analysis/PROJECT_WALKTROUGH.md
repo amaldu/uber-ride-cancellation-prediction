@@ -540,8 +540,23 @@ Encoded data using sine and cosine transformations to capture the cyclical natur
 
 
 ### booking_id	
-- Type: 
+- Type: string[pyarrow]
+- Range: 148767
+- Unique: 148767
+- Patterns: the code starts with CNR in every value.
+
+The column is described in the `DATASET_INFO.md` as unique identifier for each booking but there are duplicates: 
+   1. There are 2430 rows duplicated twice
+   2. There are 27 rows duplicated thrice
+
 ### customer_id	
+- Type: string[pyarrow]
+- Range: 148788
+- Unique: 148767
+- Patterns: the code starts with CNR in every value.
+
+
+
 ### vehicle_type	
 There are some values that need further information. For example the "Auto" 
 ### pickup_location	
