@@ -498,14 +498,45 @@ There are no duplicated rows
 
   
 ### date
-- Range: 2024-01-01 to 2024-09-30. Need to contact Ops Team to discover why we have no data from the 31st of Dec.
+- Type: object, later will merge with time and convert to datetime
+- Range: 2024-01-01 to 2024-09-30 with no missing days but I need to contact Ops Team to discover why we have no data from the 31st of Dec.
 - Unique values = 365 because is leap year 
-
+- NaN: no. Every day has between ~350 and ~450 records
+- Patterns: no clear patterns
 ### time	
-- Type: object. Impossible to convert into datatime without a "date"
+- Type: object. Impossible to convert into datatime without a "date". Will merge after the analysis
+- Range: 00:00:00 to 23:59:59
+- Unique values: too many to see something
+- NaN: no
+- Patterns: bimodal. Activity is minimal during the early morning hours, increases sharply during the morning commute with a peak around 10 AM, dips around midday, and reaches its highest level in the early evening (around 6 PM). Demand then steadily declines toward the end of the day.
+
+### datetime: merge of date and time
+- Type: datetime
+- Range: full year. 2024 started on Monday
+- NaN: no
   
-### new: datetime
-Merge of date and time
+### hour
+- Type: int32
+- Range: 0-23
+- NaN: no
+- Patterns: Created because time already showed clear patterns.
+
+### weekday
+- Type: int32
+- Range: 0-6
+- NaN: no
+- Patterns: There is no clear pattern
+
+### is_weekend
+- Type: bool
+- Range: True - False
+- NaN: no
+Paterns: There is no clear pattern
+
+### hour_sin & hour_cos
+Encoded data using sine and cosine transformations to capture the cyclical nature of time
+
+------------------------------------
 
 
 ### booking_id	
