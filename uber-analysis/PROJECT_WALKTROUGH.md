@@ -510,7 +510,7 @@ There are no duplicated rows
 - NaN: no
 - Patterns: bimodal. Activity is minimal during the early morning hours, increases sharply during the morning commute with a peak around 10 AM, dips around midday, and reaches its highest level in the early evening (around 6 PM). Demand then steadily declines toward the end of the day.
 
-### datetime: merge of date and time
+### datetime (merge of date and time)
 - Type: datetime
 - Range: full year. 2024 started on Monday
 - NaN: no
