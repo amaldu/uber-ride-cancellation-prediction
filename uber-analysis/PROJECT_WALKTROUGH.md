@@ -574,6 +574,8 @@ Encoded data using sine and cosine transformations to capture the cyclical natur
 
 # TODO - there is no explanation about the types of cars, it would be interesting to analyse and understand them because maybe we can find more patterns relating the characteristics of each car with the behaviour of the customers (ie. size of vehicle and distance with cancellation)
 
+
+
 ### pickup_location	
 - Type: category
 - Range: 790 - 949 
@@ -593,10 +595,34 @@ Encoded data using sine and cosine transformations to capture the cyclical natur
 
 # TODO - I would try to find more geographical information to analyse the correlation between distance and target. Check if pickup and drop locations are the same
 
+Why there are the same NaNs for pickup and drop locations? Some services are car rentals and you have to introduce the location and destination before booking. Others like Bike you pick it up where it is (current location) and drop it somewhere the app does not know if you cancel
 
 ### avg_vtat	
-- Contains NaNs
+- Type: float32
+- Range: 2 - 20. Both make sense. 
+- Unique: 181. Representing time, so it's continuous numerical
+- NaN: 10500 (7.0%)
+- Skewness: 0.30 (right skew, aprox symmetric -> negligible)
+- Kurtosis: -0.59 (platykurtic, higher than -1 -> negligible)
+- Observations: no need for transformation. 
+
+
 ### avg_ctat	
+- Type: float32
+- Range: 10 - 45. Both make sense. 
+- Unique: 351. Representing time, so it's continuous numerical
+- NaN: 48000 (32.0%)
+- Skewness: 0.30 (right skew, aprox symmetric -> negligible)
+- Kurtosis: -0.59 (platykurtic, higher than -1 -> negligible)
+- Observations: no need for transformation. 
+
+
+
+
+
+
+
+
 ### booking_value	
 - Contains NaNs
 ### ride_distance	
