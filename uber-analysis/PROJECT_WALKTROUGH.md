@@ -602,9 +602,15 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Range: 2 - 20. Both make sense. 
 - Unique: 181. Representing time, so it's continuous numerical
 - NaN: 10500 (7.0%)
-- Skewness: 0.30 (right skew, aprox symmetric -> negligible)
+- Skewness: 0.30 (right skewness, aprox symmetric -> negligible)
 - Kurtosis: -0.59 (platykurtic, higher than -1 -> negligible)
-- Observations: no need for transformation. 
+- Observations: 
+   There are 2 distinct regions: 
+   1. Region between 2 and 15 mins with high frequencies mostly between 3000 and 5000. Within this region there is some fluctuation with multiple peaks and troughs. There is a big drop around 15.
+   2. Region between 15 and 20 with very low frequencies around 200-300
+   
+   There's no need for transformation. 
+- Outliers: no
 
 
 ### avg_ctat	
@@ -612,19 +618,40 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Range: 10 - 45. Both make sense. 
 - Unique: 351. Representing time, so it's continuous numerical
 - NaN: 48000 (32.0%)
-- Skewness: 0.30 (right skew, aprox symmetric -> negligible)
-- Kurtosis: -0.59 (platykurtic, higher than -1 -> negligible)
-- Observations: no need for transformation. 
+- Skewness: 0.04 (right skewness, negligible)
+- Kurtosis: -1.123 (platykurtic, negligible)
+- Observations: 
+   Here there are also three distinct regions:
+   1. Region from 10 to 15 with low frequency observations, around 30
+   2. Region from 15 to 30 where the frequency reaches levels between 2400 and 2500
+   3. Region from 30 to 45 where the frequency slightly drops between 2100 and 2300
 
-
-
-
-
-
+   There is no need for transformation.
+- Outliers: no
 
 
 ### booking_value	
-- Contains NaNs
+Total fare amount for the ride in Dollars
+- Type: float32
+- Range: 50 - 4277. Both make sense? Gotta check the outliers
+- Unique: 2566. Representing fare amounts makes total sense
+- NaN: 48000 (32.0%). 
+- Skewness: 2.28 (right skewness)
+- Kurtosis: 9.88 (leptokurtic)
+- Observations: There's the same amount of NaNs as avg_ctat. 
+  When Uber offers you a ride with a car it gives you a final price before booking but there is no such information. When booking a bike or ebike it makes sense. 
+  
+  We might need transformation
+
+
+
+
+
+
+
+
+
+
 ### ride_distance	
 - Contains NaNs
 ### payment_method	
