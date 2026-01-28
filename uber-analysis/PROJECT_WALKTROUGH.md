@@ -622,10 +622,7 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Skewness: 0.04 (right skewness, negligible)
 - Kurtosis: -1.123 (platykurtic, negligible)
 - Observations: 
-   Here there are also three distinct regions:
-   1. Region from 10 to 15 with low frequency observations, around 30
-   2. Region from 15 to 30 where the frequency reaches levels between 2400 and 2500
-   3. Region from 30 to 45 where the frequency slightly drops between 2100 and 2300
+   The distribution is slightly right-skewed with potential outliers. Two modes suggest distinct types of rides. Most observations are concentrated in the range of 2-15 
 
    There is no need for transformation.
 - Outliers: no
