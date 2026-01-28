@@ -603,13 +603,9 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Unique: 181. Representing time, so it's continuous numerical
 - NaN: 10500 (7.0%)
 - Skewness: 0.30 (right skewness, aprox symmetric -> negligible)
-- Kurtosis: -0.59 (platykurtic, higher than -1 -> negligible)
+- Kurtosis: -0.59 (platykurtic -> negligible)
 - Observations: 
-   There are 3 distinct regions: 
-    1. Region between 2 and 3 mins with frequencies in the 2600-3200 range. This region is surprisingly hi because rides are usually longer than that. Relationship with target and vehicle has to be checked
-    2. Region between 3 and 15 mins with high frequencies mostly between 3000 and 5000. Within this region there is some fluctuation with multiple peaks and troughs. There is a big drop around 15.
-    3. Region between 15 and 20 with very low frequencies around 200-300
-   
+   The distribution is unimodal and slightly right-skewed. Most observations are concentrated in the range of 2-15 minutes
    There's no need for transformation. 
 - Outliers: no
 
@@ -620,9 +616,10 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Unique: 351. Representing time, so it's continuous numerical
 - NaN: 48000 (32.0%)
 - Skewness: 0.04 (right skewness, negligible)
-- Kurtosis: -1.123 (platykurtic, negligible)
+- Kurtosis: -1.123 (platykurtic, moderate)
 - Observations: 
    The distribution is unimodal and slightly right-skewed with potential outliers. Most observations are concentrated in the range of 2-15 minutes
+   Check correlation with target. Suspicious of being NaNs for all cancelled
 
    There is no need for transformation.
 - Outliers: no
@@ -631,32 +628,60 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 ### booking_value	
 Total fare amount for the ride in Dollars
 - Type: float32
-- Range: 50 - 4277. Both make sense? Gotta check the outliers
+- Range: 50 - 4277. Max make sense? Gotta check the outliers
 - Unique: 2566. Representing fare amounts makes total sense
 - NaN: 48000 (32.0%). 
 - Skewness: 2.28 (right skewness)
 - Kurtosis: 9.88 (leptokurtic)
-- Observations: There's the same amount of NaNs as avg_ctat. 
+- Observations: There's the same amount of NaNs as avg_ctat.  
   When Uber offers you a ride with a car it gives you a final price before booking but there is no such information. When booking a bike or ebike it makes sense. 
+
+  The distribution is unimodal and more strongly right-skewed than the previous variables. It's important to check for outliers Most observations are concentrated in the range of 50-1000 dollars.
   
-  We might need transformation
-
-
-
-
-
-
-
-
-
+  Potential candidate for transformation
+  Check correlation with target. Suspicious of being NaNs for all cancelled
+- Outliers: 3435 (2.29%)
+  
 
 ### ride_distance	
-- Contains NaNs
+Distance covered during the ride (in km) 
+- Type: float32
+- Range: 1 - 50
+- Unique: 4901
+- NaN: 48000 (32.0%). 
+- Skewness: 0.12 (right skewness, negligible)
+- Kurtosis: -1.21 (platykurtic, negligible for now)
+- Observations: There's the same amount of NaNs as avg_ctat. 
+  When Uber offers you a ride with a car it gives you a final price before booking but there is no such information. When booking a bike or ebike it makes sense. 
+
+  The distribution is unimodal and more strongly right-skewed than the previous variables. It's important to check for outliers Most observations are concentrated in the range of 50-1000 dollars.
+  
+  Potential candidate for transformation
+  Check correlation with target. Suspicious of being NaNs for all cancelled
+
+- Outliers: none
+
 ### payment_method	
-- Contains NaNs, what do they mean? 
+- Type: category
+- Range: 774 - 936
+- Unique: 5
+- NaN: 48000 (32%)
+- Observations: Check correlation with target. Suspicious of being NaNs for all cancelled
+
 ### is_cancelled (target)
+- Type: float32
+- Range: 0-1 (0 not cancelled & 1 cancelled)
+- Unique: 2
+- NaN: no
+- Observations: there is a clear imbalance
+```
+is_cancelled
+0.0 --> 68%
+1.0 --> 32%
+```
 
 
+ todo finish the univar format part
 
 
 
