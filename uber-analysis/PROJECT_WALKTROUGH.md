@@ -622,7 +622,7 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Skewness: 0.04 (right skewness, negligible)
 - Kurtosis: -1.123 (platykurtic, negligible)
 - Observations: 
-   The distribution is slightly right-skewed with potential outliers. Two modes suggest distinct types of rides. Most observations are concentrated in the range of 2-15 
+   The distribution is unimodal and slightly right-skewed with potential outliers. Most observations are concentrated in the range of 2-15 minutes
 
    There is no need for transformation.
 - Outliers: no
