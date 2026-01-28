@@ -605,9 +605,10 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Skewness: 0.30 (right skewness, aprox symmetric -> negligible)
 - Kurtosis: -0.59 (platykurtic, higher than -1 -> negligible)
 - Observations: 
-   There are 2 distinct regions: 
-   1. Region between 2 and 15 mins with high frequencies mostly between 3000 and 5000. Within this region there is some fluctuation with multiple peaks and troughs. There is a big drop around 15.
-   2. Region between 15 and 20 with very low frequencies around 200-300
+   There are 3 distinct regions: 
+    1. Region between 2 and 3 mins with frequencies in the 2600-3200 range. This region is surprisingly hi because rides are usually longer than that. Relationship with target and vehicle has to be checked
+    2. Region between 3 and 15 mins with high frequencies mostly between 3000 and 5000. Within this region there is some fluctuation with multiple peaks and troughs. There is a big drop around 15.
+    3. Region between 15 and 20 with very low frequencies around 200-300
    
    There's no need for transformation. 
 - Outliers: no
