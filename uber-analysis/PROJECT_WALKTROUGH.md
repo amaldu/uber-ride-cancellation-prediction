@@ -620,9 +620,9 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Kurtosis: -1.123 (platykurtic, moderate)
 - Observations: 
    The distribution is unimodal and slightly right-skewed with potential outliers. Most observations are concentrated in the range of 2-15 minutes
-   Check correlation with target. Suspicious of being NaNs for all cancelled
-
    There is no need for transformation.
+
+   this feature will not be utilized in the model because it contains missing values exclusively for cancelled bookings
 - Outliers: no
 
 
@@ -640,7 +640,7 @@ Total fare amount for the ride in Dollars
   The distribution is unimodal and more strongly right-skewed than the previous variables. It's important to check for outliers Most observations are concentrated in the range of 50-1000 dollars.
   
   Potential candidate for transformation
-  Check correlation with target. Suspicious of being NaNs for all cancelled
+  this feature will not be utilized in the model because it contains missing values exclusively for cancelled bookings
 - Outliers: 3435 (2.29%)
   
 
@@ -658,7 +658,7 @@ Distance covered during the ride (in km)
   The distribution is unimodal and more strongly right-skewed than the previous variables. It's important to check for outliers Most observations are concentrated in the range of 50-1000 dollars.
   
   Potential candidate for transformation
-  Check correlation with target. Suspicious of being NaNs for all cancelled
+  this feature will not be utilized in the model because it contains missing values exclusively for cancelled bookings
 
 - Outliers: none
 
@@ -667,7 +667,7 @@ Distance covered during the ride (in km)
 - Range: 774 - 936
 - Unique: 5
 - NaN: 48000 (32%)
-- Observations: Check correlation with target. Suspicious of being NaNs for all cancelled
+- Observations: this feature will not be utilized in the model because it contains missing values exclusively for cancelled bookings
 
 ### is_cancelled (target)
 - Type: float32
@@ -682,7 +682,7 @@ is_cancelled
 ```
 
 
- todo finish the univar format part
+
 
 
 
