@@ -7,9 +7,10 @@ The goal of the project is to predict Uber ride cancellations using machine lear
 # Problem Framing
 ## 1.1 Defininition of the objective in business terms
 
-Looking at the Uber ride data from 2024, I identified a critical operational challenge, 37.430 rides out of 148.770 the total bookings never reached completion. 
+Looking at the Uber ride data from 2024, I identified a critical operational challenge, 37.500 rides out of 150.000 the total bookings never reached completion. 
 
-This means that the 25% (37.430 rides) of all bookings end in cancellation of which a 19.15% (27.000 rides) are made by customers and 7.45% (10.500 rides) are made by drivers. This as a result, means that for every 4 ride requests, 1 fails to complete. 
+#FIXME - recheck the values with the real dataset size
+This means that the 25% (37.500 rides) of all bookings end in cancellation of which a 19.15% (27.000 rides) are made by customers and 7.45% (10.500 rides) are made by drivers. This as a result, means that for every 4 ride requests, 1 fails to complete. 
 
 In terms of business impact, I can think of the following areas:
 
