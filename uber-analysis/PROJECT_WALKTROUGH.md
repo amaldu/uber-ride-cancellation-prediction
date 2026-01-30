@@ -529,6 +529,13 @@ There are no duplicated rows
 - NaN: no
 - Observations: There is no clear pattern
 
+### month
+- Type: int32
+- Range: 1-12
+- NaN: no
+- Observations: there is no clear pattern
+
+
 ### is_weekend
 - Type: bool
 - Range: True - False
