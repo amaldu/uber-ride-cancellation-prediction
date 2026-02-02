@@ -716,19 +716,3 @@ is_cancelled
 
 
 
-
-
-
-
-
-### Data Types by Category
-
-| Category | Columns | Old Type | New Type | Additional Explanation |
-|---------------|---------|----------------|------------------|-------------|
-| Temporal | date  | object | datetime |
-| Temporal | time  | object | object | This variable contains only hours so it will be merged with "date" in future steps |
-| Identifiers | booking_id, customer_id  | object  | string |
-| Categorical| vehicle_type, booking_status, pickup_location, drop_location, payment_method | object | category |
-| Numerical | avg_vtat, avg_ctat, booking_value, ride_distance, driver_ratings, customer_rating | float64, int64 | float32 |
-| Boolean/Flag | cancelled, cancelled_rides_by_customer, cancelled_rides_by_driver, incomplete_rides | float64 | float32  |
-| Text | reason_for_cancelling_by_customer, driver_cancellation_reason, incomplete_rides_reason | object | string
