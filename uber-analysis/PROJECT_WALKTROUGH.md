@@ -10,7 +10,7 @@ The goal of the project is to predict Uber ride cancellations using machine lear
 Looking at the Uber ride data from 2024, I identified a critical operational challenge, 37.500 rides out of 150.000 the total bookings never reached completion. 
 
 #FIXME - recheck the values with the real dataset size
-This means that the 25% (37.500 rides) of all bookings end in cancellation of which a 19.15% (27.000 rides) are made by customers and 7.45% (10.500 rides) are made by drivers. This as a result, means that for every 4 ride requests, 1 fails to complete. 
+This means that the 32% (37.500 rides) of all bookings end in cancellation of which a 19.15% (27.000 rides) are made by customers and 7.45% (10.500 rides) are made by drivers. This as a result, means that for every 4 ride requests, 1 fails to complete. 
 
 In terms of business impact, I can think of the following areas:
 
@@ -50,7 +50,7 @@ The inference will be in real time when booking happens.
 
 ## 1.5 How should performance be measured?
 
-The dataset shows that we have a cancellation rate of 25%, which is moderately imbalanced so I need metrics that go beyond simple accuracy. 
+The dataset shows that we have a cancellation rate of 32%, which is moderately imbalanced so I need metrics that go beyond simple accuracy. 
 
 Here you can find a cost matrix applied to the concrete business scenarios that I defined after having conversations with product or the Ops team in order to measure the net business cost of every possible outcome:
 
@@ -202,7 +202,7 @@ Expected profit is used as a post-selection validation metric to make sure that 
 | Recall | 60% | From ROI analysis |
 | Precision | 50% | From break-even analysis |
 | F1-Score | 0.55 | Baseline for balanced performance |
-| AUC-ROC | 0.25 | Extracted from ositive class proportion |
+| AUC-ROC | 0.32 | Extracted from ositive class proportion |
 
 
 ## 1.8 What are comparable problems? Can you reuse experience or tools?
@@ -285,7 +285,7 @@ Since this is the first version of the project those will be the project I will 
 |------------|---------------------|--------|--------------|
 | Data completeness | Number of columns and rows match the document | Amount of columns and rows is different | Updated document |
 | Time coverage | The dataset represents data from the whole year 2024 | 31st of December is missing | Contact Ops team to obtain the data |
-| Class balance | Verify that the imbalance is 25% | Verified: 25% cancellation rate | None |
+| Class balance | Verify that the imbalance is 25% | Verified: based on the criteria used to label cancellations, the final value is 32% cancellation rate | None |
 | Valid target | Target column exists and it's in the format that the business needs to predict | More labels than needed | Define what is cancelled and classify the labels into 2 categories |
 | No obvious data leakage | Post-cancellation columns are removed | Verified | 7 columns have to be removed by leakage or redundance |
 
@@ -311,7 +311,7 @@ These assumptions require business input and post-deplopyment monitorization tha
 
 **Data Sufficiency Assessment**:
 - The sample size is adequate for ML modeling 
-- The positive class (cancellations) has sufficient examples (25% of that class)
+- The positive class (cancellations) has sufficient examples (32% of that class)
 - Temporal coverage spans full year with time-stamp granularity
 
 ## 2.2 Origin of the dataset
@@ -548,6 +548,10 @@ Booking volume per hour shows that clear daily pattern where morning and afterno
 ### hour_sin & hour_cos
 Encoded data using sine and cosine transformations to capture the cyclical nature of time
 
+All temporal variables are WEAK PREDICTORS
+   - Hour, day, month show flat cancellation rates
+   - No 'danger hours' or 'danger days' identified
+   - Recommendation: Include for completeness, use cyclical encoding
 ------------------------------------
 
 ### booking_id	
@@ -582,7 +586,11 @@ It's necessary to speak to the Ops team about this problems and solve it asap to
 - Range: 'Auto', 'Go Mini', 'Go Sedan', 'Bike', 'Premier Sedan', 'eBike', 'Uber XL'
 - Unique: 7
 - NaN: no
-- Observations: all columns contain enough data to be analysed
+- Observations:  WEAK PREDICTOR
+   - All types have similar cancellation rates (~32%)
+   - Chi-square test shows no significant association
+   - Recommendation: Include but don't expect high importance
+
 
 # TODO - there is no explanation about the types of cars, it would be interesting to analyse and understand them because maybe we can find more patterns relating the characteristics of each car with the behaviour of the customers (ie. size of vehicle and distance with cancellation)
 
@@ -593,7 +601,11 @@ It's necessary to speak to the Ops team about this problems and solve it asap to
 - Range: 790 - 949 
 - Unique: 176
 - NaN: no
-- Observations: I cannot check the format of the entries due to lack of knowledge and time. 
+- Observations: I cannot check the format of the entries due to lack of knowledge and time.
+The are MODERATE PREDICTOR
+   - Some variation across 176 locations
+   - High cardinality requires target encoding
+   - Recommendation: Use target encoding for pickup/drop locations
 
 # TODO - I would try to find more geographical information to analyse the correlation between distance and target. Check if pickup and drop locations are the same
 
@@ -604,6 +616,10 @@ It's necessary to speak to the Ops team about this problems and solve it asap to
 - Unique: 176
 - NaN: no
 - Observations: I cannot check the format of the entries due to lack of knowledge and time. 
+They are a MODERATE PREDICTOR
+   - Some variation across 176 locations
+   - High cardinality requires target encoding
+   - Recommendation: Use target encoding for pickup/drop locations
 
 # TODO - I would try to find more geographical information to analyse the correlation between distance and target. Check if pickup and drop locations are the same
 
@@ -613,13 +629,14 @@ Why there are the same NaNs for pickup and drop locations? Some services are car
 - Type: float32
 - Range: 2 - 20. Both make sense. 
 - Unique: 181. Representing time, so it's continuous numerical
-- NaN: 10500 (7.0%)
+- NaN: 10500 (7.0%). In this version it will be inputed with the median so our distribution remains intact.
 - Skewness: 0.30 (right skewness, aprox symmetric -> negligible)
 - Kurtosis: -0.59 (platykurtic -> negligible)
-- Observations: 
+- Observations: STRONG PREDICTOR
    The distribution is unimodal and slightly right-skewed. Most observations are concentrated in the range of 2-15 minutes.
-   All rides that take longer than 15 minutes (15-20) end up being cancelled.
-   There's no need for transformation. 
+    VTAT > 15 min: 100% cancellation rate
+   Clear positive correlation with cancellation
+   Recommendation: Create binary feature 'is_high_vtat' (>15 min) 
 - Outliers: no
 
 

@@ -13,6 +13,7 @@ jupyterlab = "*"
 kaggle = "*"
 python-dotenv = "*"
 ipykernel = "*"
+lightgbm = "*"
 
 [dev-packages]
 
