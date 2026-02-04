@@ -14,6 +14,7 @@ kaggle = "*"
 python-dotenv = "*"
 ipykernel = "*"
 lightgbm = "*"
+streamlit = "*"
 
 [dev-packages]
 
