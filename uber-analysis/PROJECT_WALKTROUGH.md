@@ -705,6 +705,9 @@ Distance covered during the ride (in km)
 - NaN: no
 - Observations: there is a clear imbalance
 ```
+
+
+
 is_cancelled
 0.0 --> 68%
 1.0 --> 32%
