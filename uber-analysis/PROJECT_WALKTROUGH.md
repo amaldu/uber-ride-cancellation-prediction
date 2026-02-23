@@ -713,7 +713,72 @@ is_cancelled
 1.0 --> 32%
 ```
 
+## Bivariate Analysis (Feature vs Target)
 
+Detailed analysis in `05_bivar_eda.ipynb`. Summary of feature–target relationships:
+
+| Feature | Predictive Strength | Evidence |
+|---------|-------------------|----------|
+| `avg_vtat` | **STRONG** | Point-biserial r ≈ 0.072 (significant), 100% cancellation rate when VTAT > 15 min, significant t-test |
+| `vehicle_type` | **WEAK** | All types ≈ 32% cancellation rate, chi-square p = 0.461 (not significant) |
+| Temporal features (hour, day, month) | **WEAK** | Flat cancellation rates across all temporal dimensions |
+| `pickup/drop_location` | **MODERATE** | Range 28–39% across 176 locations, high cardinality requires target encoding |
+
+## Multivariate Analysis & Pre-Modeling Checks
+
+Detailed analysis in `05_bivar_eda.ipynb`, section 5.
+
+### Correlation Analysis
+- Strong correlations found between raw temporal features and their cyclical encodings (expected by construction):
+  - `hour` vs `hour_sin`: r = -0.848
+  - `dayofweek` vs `is_weekend`: r = +0.791
+  - `dayofweek` vs `dow_sin`: r = -0.733
+  - `month` vs `month_sin`: r = -0.765
+
+### Multicollinearity (VIF)
+- Several features show high VIF due to overlapping temporal information:
+  - `dayofweek` (VIF = 24.22), `hour` (VIF = 18.40), `is_weekend` (VIF = 10.97), `month` (VIF = 10.46)
+- This is expected since raw + cyclical + binary encodings of the same temporal dimension are correlated
+- **Decision**: Keep all features since tree-based models (RF, XGBoost, LightGBM) are robust to multicollinearity. The VIF values don't affect model performance but may dilute feature importance rankings
+
+### Cramér's V (Categorical Associations)
+- `vtat_bucket` vs `is_high_vtat`: V = 0.946 (strong — both derive from VTAT)
+- `vtat_bucket` vs `is_cancelled`: V = 0.480 (moderate — confirms VTAT as strongest predictor)
+- `is_peak_hour` vs `is_late_night`: V = 0.330 (moderate — both derive from hour)
+- `is_high_vtat` vs `is_cancelled`: V = 0.208 (weak but meaningful)
+
+### Feature Interaction Effects
+- VTAT effect is consistent across vehicle types (no strong VTAT × vehicle interaction)
+- VTAT effect is consistent across peak/off-peak hours and weekend/weekday
+- Hour × Vehicle Type heatmap shows uniform cancellation rates (no hidden interaction patterns)
+- **Conclusion**: No strong interaction terms needed beyond VTAT itself for v1
+
+### Mutual Information (Non-Linear Feature Relevance)
+| Feature | MI Score | Interpretation |
+|---------|----------|----------------|
+| `avg_vtat_imputed` | 0.1384 | Dominant predictor (by far) |
+| `is_high_vtat` | 0.0202 | Distant second |
+| `is_peak_hour` | 0.0061 | Weak signal |
+| All other features | < 0.005 | Very weak signal |
+
+Confirms that VTAT carries the overwhelming majority of predictive information.
+
+### Model Assumption Validation
+| Assumption | Status | Notes |
+|------------|--------|-------|
+| Linearity | NOT required | Tree-based models handle non-linear relationships natively |
+| Normality | NOT required | No distributional assumptions for trees |
+| Feature scale sensitivity | NOT an issue | Trees split on rank-order, not magnitude |
+| Multicollinearity | ⚠️ High VIF for temporal features | Acceptable for trees; affects interpretability only |
+| Class balance | ⚠️ 2.12:1 ratio (moderate imbalance) | Use `class_weight='balanced'` + F2-optimized threshold |
+| Class separability | ✅ Clear separation via VTAT | VTAT > 15 = near-certain cancellation |
+| Feature variance | ✅ All features sufficient | No near-zero variance issues |
+| Missing values | ⚠️ `avg_vtat` has 7% missing | Impute with median by vehicle_type |
+
+### Implications for Modeling
+1. **Tree-based models are ideal**: no normality/linearity assumptions needed, robust to multicollinearity, handle mixed feature types, can capture non-linear VTAT threshold effect
+2. **Class imbalance handling is critical**: use balanced class weights + F2-score optimized threshold tuning
+3. **Feature importance will be dominated by VTAT** — this is expected and validated by both correlation and mutual information
 
 
 
