@@ -143,7 +143,7 @@ def build():
     y += 1
 
     panels.append(pie_panel("Target Distribution (is_cancelled)",
-                            "SELECT outcome, count FROM univar_target_distribution", 0, y, 6, 8))
+                            "SELECT MAX(CASE WHEN outcome='Completed' THEN count END) as Completed, MAX(CASE WHEN outcome='Cancelled' THEN count END) as Cancelled FROM univar_target_distribution", 0, y, 6, 8))
     panels.append(bar_panel("Vehicle Type Distribution & Cancellation Rate",
                             "SELECT vehicle_type, total_rides, cancellation_rate FROM univar_vehicle_type",
                             6, y, 9, 8, orient="vertical"))
@@ -153,7 +153,7 @@ def build():
     y += 8
 
     panels.append(bar_panel("Hourly Booking Volume",
-                            "SELECT hour, booking_volume, cancellation_rate FROM univar_temporal_hourly ORDER BY hour",
+                            "SELECT printf('%02d:00', hour) as hour, booking_volume, cancellation_rate FROM univar_temporal_hourly ORDER BY hour",
                             0, y, 8, 7, orient="vertical"))
     panels.append(bar_panel("Daily Booking Volume",
                             "SELECT day_name, booking_volume, cancellation_rate FROM univar_temporal_daily ORDER BY day_order",
