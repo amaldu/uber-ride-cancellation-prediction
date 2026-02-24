@@ -1,0 +1,1684 @@
+{
+  "uid": "uber-ride-analysis",
+  "title": "Uber Ride Cancellation \u2014 Analysis & Model Monitoring",
+  "tags": [
+    "uber",
+    "ml",
+    "monitoring",
+    "eda"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "",
+  "templating": {
+    "list": []
+  },
+  "panels": [
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "# Uber Ride Cancellation Analysis\nAnalysis of **150,000 bookings** | **32% cancellation rate** | **$748,600 estimated lost revenue** | Best model: **LightGBM (F2=0.73, Recall=95.6%)**"
+      },
+      "id": 1
+    },
+    {
+      "type": "row",
+      "title": "Key Performance Indicators",
+      "gridPos": {
+        "x": 0,
+        "y": 3,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "id": 2
+    },
+    {
+      "type": "stat",
+      "title": "Total Bookings",
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM dataset_overview WHERE metric='total_bookings'",
+          "queryText": "SELECT value FROM dataset_overview WHERE metric='total_bookings'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 3
+    },
+    {
+      "type": "stat",
+      "title": "Cancellation Rate",
+      "gridPos": {
+        "x": 4,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM dataset_overview WHERE metric='cancellation_rate'",
+          "queryText": "SELECT value FROM dataset_overview WHERE metric='cancellation_rate'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 4
+    },
+    {
+      "type": "stat",
+      "title": "Cancelled Rides",
+      "gridPos": {
+        "x": 8,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM dataset_overview WHERE metric='cancelled_rides'",
+          "queryText": "SELECT value FROM dataset_overview WHERE metric='cancelled_rides'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 5
+    },
+    {
+      "type": "stat",
+      "title": "Lost Revenue",
+      "gridPos": {
+        "x": 12,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM dataset_overview WHERE metric='lost_revenue'",
+          "queryText": "SELECT value FROM dataset_overview WHERE metric='lost_revenue'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "dark-red"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 6
+    },
+    {
+      "type": "stat",
+      "title": "Features Engineered",
+      "gridPos": {
+        "x": 16,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM dataset_overview WHERE metric='features_engineered'",
+          "queryText": "SELECT value FROM dataset_overview WHERE metric='features_engineered'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 7
+    },
+    {
+      "type": "stat",
+      "title": "Unique Locations",
+      "gridPos": {
+        "x": 20,
+        "y": 4,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM dataset_overview WHERE metric='unique_locations'",
+          "queryText": "SELECT value FROM dataset_overview WHERE metric='unique_locations'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 8
+    },
+    {
+      "type": "row",
+      "title": "Univariate Analysis",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "id": 9
+    },
+    {
+      "type": "piechart",
+      "title": "Target Distribution (is_cancelled)",
+      "gridPos": {
+        "x": 0,
+        "y": 9,
+        "w": 6,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT outcome, count FROM univar_target_distribution",
+          "queryText": "SELECT outcome, count FROM univar_target_distribution",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi"
+        },
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 10
+    },
+    {
+      "type": "barchart",
+      "title": "Vehicle Type Distribution & Cancellation Rate",
+      "gridPos": {
+        "x": 6,
+        "y": 9,
+        "w": 9,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT vehicle_type, total_rides, cancellation_rate FROM univar_vehicle_type",
+          "queryText": "SELECT vehicle_type, total_rides, cancellation_rate FROM univar_vehicle_type",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "vertical",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 11
+    },
+    {
+      "type": "barchart",
+      "title": "VTAT Distribution & Cancellation Rate",
+      "gridPos": {
+        "x": 15,
+        "y": 9,
+        "w": 9,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT vtat_range, count as ride_count, cancellation_rate FROM univar_vtat_distribution ORDER BY bucket_order",
+          "queryText": "SELECT vtat_range, count as ride_count, cancellation_rate FROM univar_vtat_distribution ORDER BY bucket_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "vertical",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 12
+    },
+    {
+      "type": "barchart",
+      "title": "Hourly Booking Volume",
+      "gridPos": {
+        "x": 0,
+        "y": 17,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT hour, booking_volume, cancellation_rate FROM univar_temporal_hourly ORDER BY hour",
+          "queryText": "SELECT hour, booking_volume, cancellation_rate FROM univar_temporal_hourly ORDER BY hour",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "vertical",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 13
+    },
+    {
+      "type": "barchart",
+      "title": "Daily Booking Volume",
+      "gridPos": {
+        "x": 8,
+        "y": 17,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT day_name, booking_volume, cancellation_rate FROM univar_temporal_daily ORDER BY day_order",
+          "queryText": "SELECT day_name, booking_volume, cancellation_rate FROM univar_temporal_daily ORDER BY day_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "vertical",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 14
+    },
+    {
+      "type": "barchart",
+      "title": "Monthly Booking Volume",
+      "gridPos": {
+        "x": 16,
+        "y": 17,
+        "w": 8,
+        "h": 7
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT month_name, booking_volume, cancellation_rate FROM univar_temporal_monthly ORDER BY month_order",
+          "queryText": "SELECT month_name, booking_volume, cancellation_rate FROM univar_temporal_monthly ORDER BY month_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "vertical",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 15
+    },
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 24,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Key Univariate Findings\n- **VTAT is the dominant predictor**: VTAT >= 15 min leads to **100% cancellation**\n- **Temporal features are weak**: Cancellation rate is flat (~32%) across all hours, days, months\n- **Vehicle type is not discriminative**: All 7 types show ~32% cancellation rate\n- **Data quality**: 7% missing VTAT values, 32% missing in booking_value/ride_distance/payment_method (leakage columns removed)"
+      },
+      "id": 16
+    },
+    {
+      "type": "row",
+      "title": "Bivariate Analysis",
+      "gridPos": {
+        "x": 0,
+        "y": 27,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "id": 17
+    },
+    {
+      "type": "barchart",
+      "title": "VTAT Bucket vs Cancellation Rate",
+      "gridPos": {
+        "x": 0,
+        "y": 28,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT vtat_bucket, cancellation_rate, sample_count FROM bivar_vtat_buckets ORDER BY bucket_order",
+          "queryText": "SELECT vtat_bucket, cancellation_rate, sample_count FROM bivar_vtat_buckets ORDER BY bucket_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "vertical",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 18
+    },
+    {
+      "type": "barchart",
+      "title": "Top 10 Pickup Locations by Cancellation Rate",
+      "gridPos": {
+        "x": 8,
+        "y": 28,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT location, cancellation_rate FROM bivar_location_pickup ORDER BY rank_order",
+          "queryText": "SELECT location, cancellation_rate FROM bivar_location_pickup ORDER BY rank_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 19
+    },
+    {
+      "type": "barchart",
+      "title": "Top 10 Drop Locations by Cancellation Rate",
+      "gridPos": {
+        "x": 16,
+        "y": 28,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT location, cancellation_rate FROM bivar_location_drop ORDER BY rank_order",
+          "queryText": "SELECT location, cancellation_rate FROM bivar_location_drop ORDER BY rank_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "id": 20
+    },
+    {
+      "type": "barchart",
+      "title": "Mutual Information with Target (is_cancelled)",
+      "gridPos": {
+        "x": 0,
+        "y": 36,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT feature, mutual_information FROM bivar_feature_importance_mi ORDER BY rank_order",
+          "queryText": "SELECT feature, mutual_information FROM bivar_feature_importance_mi ORDER BY rank_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "purple"
+          }
+        },
+        "overrides": []
+      },
+      "id": 21
+    },
+    {
+      "type": "barchart",
+      "title": "Point-Biserial Correlation with Target",
+      "gridPos": {
+        "x": 8,
+        "y": 36,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT feature, abs_correlation FROM bivar_correlation_target ORDER BY abs_correlation DESC",
+          "queryText": "SELECT feature, abs_correlation FROM bivar_correlation_target ORDER BY abs_correlation DESC",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "id": 22
+    },
+    {
+      "type": "barchart",
+      "title": "Cramer's V (Categorical Associations)",
+      "gridPos": {
+        "x": 16,
+        "y": 36,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT feature_pair, cramers_v FROM bivar_cramers_v ORDER BY cramers_v DESC",
+          "queryText": "SELECT feature_pair, cramers_v FROM bivar_cramers_v ORDER BY cramers_v DESC",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      },
+      "id": 23
+    },
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 44,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Key Bivariate Findings\n- **VTAT dominates** with mutual information of 0.1384 \u2014 7x higher than the next feature\n- **Cramer's V**: vtat_bucket vs is_cancelled = 0.48 (strong); vehicle_type vs is_cancelled = 0.01 (negligible)\n- **Location patterns**: Top pickup/drop locations show 35-39% cancellation (vs 32% baseline)\n- **Point-biserial**: avg_vtat = 0.072 (significant, p < 0.001)"
+      },
+      "id": 24
+    },
+    {
+      "type": "row",
+      "title": "Model Performance Monitoring",
+      "gridPos": {
+        "x": 0,
+        "y": 47,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "id": 25
+    },
+    {
+      "type": "table",
+      "title": "Model Comparison (Test Set)",
+      "gridPos": {
+        "x": 0,
+        "y": 48,
+        "w": 24,
+        "h": 6
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT model_name as Model, ROUND(f2_score, 4) as F2_Score, ROUND(recall * 100, 1) || '%' as Recall, ROUND(precision_score * 100, 1) || '%' as Precision, ROUND(pr_auc, 4) as PR_AUC, ROUND(roc_auc, 4) as ROC_AUC, optimal_threshold as Threshold, CASE WHEN is_selected = 1 THEN 'Selected' ELSE '' END as Status FROM model_comparison ORDER BY f2_score DESC",
+          "queryText": "SELECT model_name as Model, ROUND(f2_score, 4) as F2_Score, ROUND(recall * 100, 1) || '%' as Recall, ROUND(precision_score * 100, 1) || '%' as Precision, ROUND(pr_auc, 4) as PR_AUC, ROUND(roc_auc, 4) as ROC_AUC, optimal_threshold as Threshold, CASE WHEN is_selected = 1 THEN 'Selected' ELSE '' END as Status FROM model_comparison ORDER BY f2_score DESC",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "fixed",
+                  "fixedColor": "green"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "id": 26
+    },
+    {
+      "type": "gauge",
+      "title": "LightGBM F2-Score",
+      "gridPos": {
+        "x": 0,
+        "y": 54,
+        "w": 4,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT f2_score FROM model_comparison WHERE model_name='LightGBM'",
+          "queryText": "SELECT f2_score FROM model_comparison WHERE model_name='LightGBM'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "yellow",
+                "value": 0.65
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "id": 27
+    },
+    {
+      "type": "gauge",
+      "title": "LightGBM Recall",
+      "gridPos": {
+        "x": 4,
+        "y": 54,
+        "w": 4,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT recall FROM model_comparison WHERE model_name='LightGBM'",
+          "queryText": "SELECT recall FROM model_comparison WHERE model_name='LightGBM'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "yellow",
+                "value": 0.65
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "id": 28
+    },
+    {
+      "type": "gauge",
+      "title": "LightGBM Precision",
+      "gridPos": {
+        "x": 8,
+        "y": 54,
+        "w": 4,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT precision_score FROM model_comparison WHERE model_name='LightGBM'",
+          "queryText": "SELECT precision_score FROM model_comparison WHERE model_name='LightGBM'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.3
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "green",
+                "value": 0.6
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "id": 29
+    },
+    {
+      "type": "gauge",
+      "title": "LightGBM PR-AUC",
+      "gridPos": {
+        "x": 12,
+        "y": 54,
+        "w": 4,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT pr_auc FROM model_comparison WHERE model_name='LightGBM'",
+          "queryText": "SELECT pr_auc FROM model_comparison WHERE model_name='LightGBM'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "yellow",
+                "value": 0.65
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "id": 30
+    },
+    {
+      "type": "gauge",
+      "title": "LightGBM ROC-AUC",
+      "gridPos": {
+        "x": 16,
+        "y": 54,
+        "w": 4,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT roc_auc FROM model_comparison WHERE model_name='LightGBM'",
+          "queryText": "SELECT roc_auc FROM model_comparison WHERE model_name='LightGBM'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.5
+              },
+              {
+                "color": "yellow",
+                "value": 0.65
+              },
+              {
+                "color": "green",
+                "value": 0.7
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "id": 31
+    },
+    {
+      "type": "stat",
+      "title": "Optimal Threshold",
+      "gridPos": {
+        "x": 20,
+        "y": 54,
+        "w": 4,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT optimal_threshold FROM model_comparison WHERE model_name='LightGBM'",
+          "queryText": "SELECT optimal_threshold FROM model_comparison WHERE model_name='LightGBM'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "yellow"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 32
+    },
+    {
+      "type": "barchart",
+      "title": "Feature Importance \u2014 LightGBM (Selected Model)",
+      "gridPos": {
+        "x": 0,
+        "y": 59,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT feature, importance FROM model_feature_importance WHERE model_name='LightGBM' ORDER BY rank_order",
+          "queryText": "SELECT feature, importance FROM model_feature_importance WHERE model_name='LightGBM' ORDER BY rank_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "id": 33
+    },
+    {
+      "type": "barchart",
+      "title": "Feature Importance \u2014 XGBoost",
+      "gridPos": {
+        "x": 12,
+        "y": 59,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT feature, importance FROM model_feature_importance WHERE model_name='XGBoost' ORDER BY rank_order",
+          "queryText": "SELECT feature, importance FROM model_feature_importance WHERE model_name='XGBoost' ORDER BY rank_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "id": 34
+    },
+    {
+      "type": "barchart",
+      "title": "Feature Importance \u2014 Random Forest",
+      "gridPos": {
+        "x": 0,
+        "y": 67,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT feature, importance FROM model_feature_importance WHERE model_name='Random Forest' ORDER BY rank_order",
+          "queryText": "SELECT feature, importance FROM model_feature_importance WHERE model_name='Random Forest' ORDER BY rank_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          }
+        },
+        "overrides": []
+      },
+      "id": 35
+    },
+    {
+      "type": "barchart",
+      "title": "Feature Importance \u2014 Logistic Regression (Baseline)",
+      "gridPos": {
+        "x": 12,
+        "y": 67,
+        "w": 12,
+        "h": 8
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT feature, importance FROM model_feature_importance WHERE model_name='Logistic Regression' ORDER BY rank_order",
+          "queryText": "SELECT feature, importance FROM model_feature_importance WHERE model_name='Logistic Regression' ORDER BY rank_order",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "orientation": "horizontal",
+        "showValue": "auto",
+        "barWidth": 0.7,
+        "groupWidth": 0.75,
+        "stacking": "none",
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          }
+        },
+        "overrides": []
+      },
+      "id": 36
+    },
+    {
+      "type": "row",
+      "title": "Business Impact & ROI (LightGBM)",
+      "gridPos": {
+        "x": 0,
+        "y": 75,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "id": 37
+    },
+    {
+      "type": "stat",
+      "title": "Net Annual Savings",
+      "gridPos": {
+        "x": 0,
+        "y": 76,
+        "w": 6,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM model_business_impact WHERE metric='net_annual_savings'",
+          "queryText": "SELECT value FROM model_business_impact WHERE metric='net_annual_savings'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 38
+    },
+    {
+      "type": "stat",
+      "title": "ROI",
+      "gridPos": {
+        "x": 6,
+        "y": 76,
+        "w": 6,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM model_business_impact WHERE metric='roi_percentage'",
+          "queryText": "SELECT value FROM model_business_impact WHERE metric='roi_percentage'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 39
+    },
+    {
+      "type": "stat",
+      "title": "Daily Interventions",
+      "gridPos": {
+        "x": 12,
+        "y": 76,
+        "w": 6,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM model_business_impact WHERE metric='intervention_volume_daily'",
+          "queryText": "SELECT value FROM model_business_impact WHERE metric='intervention_volume_daily'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 40
+    },
+    {
+      "type": "stat",
+      "title": "Correctly Flagged (TP)",
+      "gridPos": {
+        "x": 18,
+        "y": 76,
+        "w": 6,
+        "h": 5
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT value FROM model_business_impact WHERE metric='true_positives'",
+          "queryText": "SELECT value FROM model_business_impact WHERE metric='true_positives'",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "id": 41
+    },
+    {
+      "type": "table",
+      "title": "Confusion Matrix Breakdown",
+      "gridPos": {
+        "x": 0,
+        "y": 81,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT metric as Metric, CAST(value AS INTEGER) as Count, label as Description FROM model_business_impact WHERE metric IN ('true_positives','false_positives','false_negatives','true_negatives') ORDER BY CASE metric WHEN 'true_positives' THEN 1 WHEN 'false_positives' THEN 2 WHEN 'false_negatives' THEN 3 WHEN 'true_negatives' THEN 4 END",
+          "queryText": "SELECT metric as Metric, CAST(value AS INTEGER) as Count, label as Description FROM model_business_impact WHERE metric IN ('true_positives','false_positives','false_negatives','true_negatives') ORDER BY CASE metric WHEN 'true_positives' THEN 1 WHEN 'false_positives' THEN 2 WHEN 'false_negatives' THEN 3 WHEN 'true_negatives' THEN 4 END",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "id": 42
+    },
+    {
+      "type": "table",
+      "title": "Financial Breakdown",
+      "gridPos": {
+        "x": 12,
+        "y": 81,
+        "w": 12,
+        "h": 6
+      },
+      "datasource": {
+        "type": "frser-sqlite-datasource",
+        "uid": "P2D2EEF3E092AF52B"
+      },
+      "targets": [
+        {
+          "rawQueryText": "SELECT metric as Metric, CAST(value AS INTEGER) as Amount, label as Details FROM model_business_impact WHERE metric IN ('gross_savings','false_alarm_cost','missed_cancellation_cost','net_annual_savings') ORDER BY CASE metric WHEN 'gross_savings' THEN 1 WHEN 'false_alarm_cost' THEN 2 WHEN 'missed_cancellation_cost' THEN 3 WHEN 'net_annual_savings' THEN 4 END",
+          "queryText": "SELECT metric as Metric, CAST(value AS INTEGER) as Amount, label as Details FROM model_business_impact WHERE metric IN ('gross_savings','false_alarm_cost','missed_cancellation_cost','net_annual_savings') ORDER BY CASE metric WHEN 'gross_savings' THEN 1 WHEN 'false_alarm_cost' THEN 2 WHEN 'missed_cancellation_cost' THEN 3 WHEN 'net_annual_savings' THEN 4 END",
+          "queryType": "table",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "center"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "footer": {
+          "show": false
+        }
+      },
+      "id": 43
+    },
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 87,
+        "w": 24,
+        "h": 3
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "### Monitoring Notes\n- **Target thresholds**: F2 >= 0.68 | Recall >= 70% | Precision >= 60%\n- **Current status**: F2 and Recall targets met; Precision below target (38% vs 60%) \u2014 acceptable given 4:1 cost asymmetry\n- **Recommendation**: Monitor VTAT distribution drift as the primary retraining signal\n- **Retrain trigger**: If F2-score drops below 0.68 or recall drops below 85%"
+      },
+      "id": 44
+    }
+  ],
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "fiscalYearStartMonth": 0,
+  "liveNow": false,
+  "weekStart": "",
+  "editable": true,
+  "graphTooltip": 1
+}

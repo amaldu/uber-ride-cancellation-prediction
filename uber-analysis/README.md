@@ -1,7 +1,5 @@
 # Uber Ride Cancellation Prediction
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://uber-cancellation-prediction.streamlit.app)
-
 A machine learning project to predict ride cancellations at booking time, enabling proactive intervention strategies to reduce the overall cancellation rate.
 
 ## Business Problem
@@ -44,13 +42,13 @@ Built a predictive model that identifies high-risk bookings at the time of booki
 
 ```
 uber-analysis/
-├── dashboard/                 # Streamlit dashboard
-│   ├── app.py                # Main dashboard page
-│   ├── pages/
-│   │   ├── 1_EDA_Analysis.py # EDA visualizations
-│   │   ├── 2_Model_Results.py# Model comparison
-│   │   └── 3_Predictions.py  # Live prediction demo
-│   └── requirements.txt      # Dashboard dependencies
+├── grafana/                   # Grafana monitoring dashboard
+│   ├── docker-compose.yml    # Docker setup for Grafana
+│   ├── export_data.py        # Exports analysis insights to SQLite
+│   ├── generate_dashboard.py # Generates Grafana dashboard JSON
+│   ├── start.sh              # One-command setup script
+│   ├── data/                 # SQLite database (generated)
+│   └── provisioning/         # Grafana auto-provisioning configs
 ├── data/
 │   ├── raw/                  # Original dataset
 │   ├── bronze/               # Cleaned data splits
@@ -58,7 +56,7 @@ uber-analysis/
 ├── models/                   # Trained model artifacts
 ├── notebooks/
 │   ├── 01_ingest_data.ipynb
-│   ├── 02_assumptions.ipynb
+│   ├── 02_business_assumptions.ipynb
 │   ├── 03_data_cleaning.ipynb
 │   ├── 04_univar_eda.ipynb
 │   ├── 05_bivar_eda.ipynb
@@ -90,26 +88,42 @@ uber-analysis/
 | Temporal | `hour`, `dayofweek`, `month`, `is_weekend`, `is_peak_hour`, `is_late_night` |
 | Cyclical | `hour_sin`, `hour_cos`, `dow_sin`, `dow_cos`, `month_sin`, `month_cos` |
 
-## Run the Dashboard Locally
+## Run the Grafana Dashboard Locally
+
+The Grafana dashboard provides interactive visualizations of the EDA insights and model monitoring metrics. It runs via Docker.
+
+**Prerequisites**: Docker and Docker Compose installed.
 
 ```bash
-# Navigate to dashboard directory
-cd uber-analysis/dashboard
+# Navigate to the grafana directory
+cd uber-analysis/grafana
 
-# Install dependencies
-pip install -r requirements.txt
+# Option 1: One-command setup (recommended)
+./start.sh
 
-# Run Streamlit
-streamlit run app.py
+# Option 2: Step by step
+python3 export_data.py           # Export insights to SQLite
+python3 generate_dashboard.py    # Generate dashboard JSON
+docker compose up -d             # Start Grafana
 ```
 
-## Deploy to Streamlit Cloud
+Open **http://localhost:3000** and log in with `admin` / `admin`.
 
-1. Push this repository to GitHub
-2. Go to [share.streamlit.io](https://share.streamlit.io)
-3. Connect your GitHub repository
-4. Set main file path: `uber-analysis/dashboard/app.py`
-5. Deploy!
+The dashboard **"Uber Ride Cancellation — Analysis & Model Monitoring"** is set as the home dashboard and includes:
+
+| Section | Panels |
+|---------|--------|
+| **KPIs** | Total bookings, cancellation rate, lost revenue, features engineered |
+| **Univariate Analysis** | Target distribution, vehicle type, VTAT distribution, hourly/daily/monthly patterns |
+| **Bivariate Analysis** | VTAT buckets vs cancellation, top pickup/drop locations, mutual information, correlations, Cramer's V |
+| **Model Monitoring** | 4-model comparison table, LightGBM gauges (F2/Recall/Precision/PR-AUC/ROC-AUC), feature importance for all models |
+| **Business Impact** | Net savings, ROI, daily interventions, confusion matrix breakdown, financial breakdown |
+
+To stop Grafana:
+```bash
+cd uber-analysis/grafana
+docker compose down
+```
 
 ## Dataset
 
@@ -122,21 +136,15 @@ streamlit run app.py
 - **Analysis**: Python, Pandas, NumPy
 - **Visualization**: Plotly, Matplotlib, Seaborn
 - **Modeling**: Scikit-learn, XGBoost, LightGBM
-- **Dashboard**: Streamlit
-- **Data Storage**: Parquet
+- **Dashboard**: Grafana
+- **Infrastructure**: Docker, Docker Compose
+- **Data Storage**: Parquet, SQLite
 
 ## Future Improvements
 
-- [ ] Add real-time model monitoring
 - [ ] Implement A/B testing framework for interventions
 - [ ] Explore deep learning approaches
 - [ ] Add geographic clustering features
 - [ ] Build API endpoint for production deployment
+- [ ] Add data drift detection to Grafana monitoring
 
-## Author
-
-Portfolio Project | [View Dashboard](https://uber-cancellation-prediction.streamlit.app)
-
----
-
-*This project demonstrates end-to-end machine learning workflow: problem framing, EDA, feature engineering, model development, and deployment.*
