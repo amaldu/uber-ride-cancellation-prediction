@@ -2,6 +2,8 @@
 
 A machine learning project to predict ride cancellations at booking time, enabling proactive intervention strategies to reduce the overall cancellation rate.
 
+> **[Project Walkthrough](uber-analysis/PROJECT_WALKTROUGH.md)** Read this detailed document covering the full reasoning behind every decision in this project: problem framing (business objectives, cost matrix, metric selection), data acquisition and legal considerations, EDA insights (cleaning, leakage detection, univariate/bivariate findings), and future research directions. 
+
 ### Dashboard Preview
 
 ![KPIs & Univariate Analysis](uber-analysis/images/grafana_kpi_univariate.png)
@@ -70,11 +72,12 @@ Built a predictive model that identifies high-risk bookings at the time of booki
 │   │   ├── 03_data_cleaning.ipynb
 │   │   ├── 04_univar_eda.ipynb
 │   │   ├── 05_bivar_eda.ipynb
-│   │   ├── 06_feature_engineering.ipynb
-│   │   ├── 07_baseline_logistic_regression.ipynb
-│   │   ├── 08_random_forest.ipynb
-│   │   ├── 09_xgboost.ipynb
-│   │   └── 10_lightgbm.ipynb
+│   │   ├── 06_multivar_eda.ipynb
+│   │   ├── 07_feature_engineering.ipynb
+│   │   ├── 08_baseline_logistic_regression.ipynb
+│   │   ├── 09_random_forest.ipynb
+│   │   ├── 10_xgboost.ipynb
+│   │   └── 11_lightgbm.ipynb
 │   ├── images/                   # Dashboard screenshots
 │   ├── DATASET_INFO.md
 │   └── PROJECT_WALKTHROUGH.md    # Detailed methodology
