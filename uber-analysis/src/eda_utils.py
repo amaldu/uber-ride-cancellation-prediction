@@ -51,6 +51,34 @@ def get_outliers(data, col):
         print(f"\n {col}: no outliers detected")
 
 
+def spearman_trend(x, y, x_label="x", y_label="y"):
+    """Compute Spearman correlation and print an interpretation.
+
+    Parameters
+    ----------
+    x, y : array-like
+        The two variables to correlate.
+    x_label, y_label : str
+        Human-readable names used in the printed summary.
+
+    Returns
+    -------
+    rho : float
+    p_value : float
+    """
+    rho, p_value = stats.spearmanr(x, y)
+    print(f"Spearman correlation ({x_label} vs {y_label}): ρ = {rho:.4f}, p = {p_value:.4e}")
+
+    if p_value < 0.05:
+        direction = "increasing" if rho > 0 else "decreasing"
+        strength = "weak" if abs(rho) < 0.3 else "moderate" if abs(rho) < 0.6 else "strong"
+        print(f"  → Statistically significant {strength} {direction} trend (p < 0.05)")
+    else:
+        print("  → No statistically significant monotonic trend (p ≥ 0.05)")
+    print()
+
+
+
 def get_nans(data, col):
     cancelled_mask = data["is_cancelled"] == 1
     nan_mask = data[col].isna()
