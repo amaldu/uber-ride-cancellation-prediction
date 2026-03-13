@@ -1,6 +1,14 @@
-"""src — shared utilities for the Uber ride cancellation project."""
 
-from .eda_utils import get_stats, cramers_v, get_outliers, get_nans
+from .eda_utils import get_stats, get_outliers, get_nans
+from .eda_utils import (
+    cramers_v,
+    spearman_trend,
+    nominal_vs_binary,
+    rolling_lineplot,
+    binary_vs_binary,
+    continuous_vs_binary,
+    zone_breakdown,
+)
 from .evaluation import (
     METRIC_TARGETS,
     evaluate_model,

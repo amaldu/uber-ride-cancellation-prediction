@@ -30,5 +30,6 @@ Thumbs.db
 
 # Project-specific
 uber-analysis/grafana/data/*.db
+uber-analysis/src/eda_utils/
 GUIDELINE.md
 uber-analysis/PROJECT_WALKTROUGH_backup.md
