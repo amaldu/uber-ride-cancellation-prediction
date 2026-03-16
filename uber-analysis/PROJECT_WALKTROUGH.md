@@ -4,6 +4,52 @@ Here I explain the step-by-step logic and workflow followed in this machine lear
 
 The goal of the project is to predict Uber ride cancellations using machine learning to enable proactive intervention by creating strategies to reduce the overall cancellation rate.
 
+---
+
+## Index
+
+- [1. Problem Framing](#problem-framing)
+  - [1.1 Definition of the objective in business terms](#11-defininition-of-the-objective-in-business-terms)
+  - [1.2 How will the solution be used?](#12-how-will-the-solution-be-used)
+  - [1.3 What are the current solutions/workarounds (if any)?](#13-what-are-the-current-solutionsworkarounds-if-any)
+  - [1.4 How should the problem be framed](#14-how-should-the-problem-be-framed)
+  - [1.5 How should performance be measured?](#15-how-should-performance-be-measured)
+  - [1.6 Is the performance measure aligned with the business objective?](#16-is-the-performance-measure-aligned-with-the-business-objective)
+  - [1.7 What would be the minimum performance needed to reach the business objective?](#17-what-would-be-the-minimum-performance-needed-to-reach-the-business-objective)
+  - [1.8 What are comparable problems? Can you reuse experience or tools?](#18-what-are-comparable-problems-can-you-reuse-experience-or-tools)
+  - [1.9 Is human expertise available?](#19-is-human-expertise-available)
+  - [1.10 How would you solve the problem manually?](#110-how-would-you-solve-the-problem-manually)
+  - [1.11 List the assumptions made so far](#111-list-the-assumptions-made-so-far)
+  - [1.12 Verify assumptions if possible](#112-verify-assumptions-if-possible)
+- [2. Get the Data](#2-get-the-data)
+  - [2.1 List the data](#21-list-the-data)
+  - [2.2 Origin of the dataset](#22-origin-of-the-dataset)
+  - [2.3 Storage requirements for the dataset](#23-storage-requirements-for-the-dataset)
+  - [2.4 Check legal obligations](#24-check-legal-obligations)
+  - [2.5 Access authorizations](#25-access-authorizations)
+  - [2.6 Data ingestion and overview](#26-data-ingestion-and-overview)
+  - [2.7 Format of the data](#27-format-of-the-data)
+  - [2.8 Sensitive data analysis (PPI)](#28-sensitive-data-analysis-ppi)
+- [3. EDA Insights](#3-eda-insights)
+  - [3.1 Size and type of data](#31-size-and-type-of-data)
+  - [3.2 Cleaning and preprocessing steps](#32-cleaning-and-preprocessing-steps)
+    - [3.2.1 Data Leakage Analysis](#321-data-leakage-analysis)
+  - [3.3 Train/test/val split strategy](#33-traintestva-split-strategy)
+  - [Basic Analysis](#basic-analysis)
+  - [Univariate Analysis](#univariate-analysis)
+  - [Bivariate Analysis (Feature vs Target)](#bivariate-analysis-feature-vs-target)
+    - [Engineered features](#engineered-features)
+- [4. Multivariate EDA](#4-multivariate-eda) *(pending)*
+- [5. Feature Engineering](#5-feature-engineering) *(pending)*
+- [6. Modeling](#6-modeling) *(pending)*
+  - [6.1 Baseline: Logistic Regression](#61-baseline-logistic-regression) *(pending)*
+  - [6.2 Random Forest](#62-random-forest) *(pending)*
+  - [6.3 XGBoost](#63-xgboost) *(pending)*
+  - [6.4 LightGBM](#64-lightgbm) *(pending)*
+- [7. Model Comparison and Selection](#7-model-comparison-and-selection) *(pending)*
+
+---
+
 # Problem Framing
 ## 1.1 Defininition of the objective in business terms
 
