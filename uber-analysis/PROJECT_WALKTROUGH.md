@@ -39,7 +39,7 @@ The goal of the project is to predict Uber ride cancellations using machine lear
   - [Univariate Analysis](#univariate-analysis)
   - [Bivariate Analysis (Feature vs Target)](#bivariate-analysis-feature-vs-target)
     - [Engineered features](#engineered-features)
-- [4. Multivariate EDA](#4-multivariate-eda) *(pending)*
+- [4. Multivariate EDA](#4-multivariate-eda)
 - [5. Feature Engineering](#5-feature-engineering) *(pending)*
 - [6. Modeling](#6-modeling) *(pending)*
   - [6.1 Baseline: Logistic Regression](#61-baseline-logistic-regression) *(pending)*
@@ -577,4 +577,85 @@ Detailed in `05_bivar_eda.ipynb`.
 ### Engineered features
 
 `vtat_zone`, `is_instant_arrival`, `is_timeout`, `is_long_wait`, `vtat_missing`, `weekday`, `month`, `hour`, `is_night`, `is_rush`, `is_weekend`, cyclical encodings.
+
+
+---
+
+# 4. Multivariate EDA
+
+Detailed in `06_multivar_eda.ipynb`.
+
+## Analyses Performed
+
+1. **Multivariate Missingness Confounding Check**: Tested whether the combination of all non-VTAT features could predict avg_vtat missingness beyond is_cancelled alone. Result: AUC lift of only 0.002 — missingness is purely driven by the target with no hidden confounding.
+
+2. **Family Redundancy Check**: Quantified overlap within feature families using eta-squared and mutual information.
+
+3. **Pearson Correlation with Hierarchical Clustering**: Examined linear relationships and feature groupings in the numeric feature space.
+
+4. **Interaction Effects (pickup × drop → route)**: Tested whether the route combination adds signal beyond individual locations. Cramér's V = 0.45 suggested strong association.
+
+5. **Target Encoding Validation for Route**: Cross-validated test of whether route signal generalizes out-of-sample.
+
+6. **VIF (Variance Inflation Factor)**: Checked for multicollinearity that could destabilize logistic regression coefficients.
+
+7. **Mutual Information**: Detected non-linear dependencies between feature pairs.
+
+## Key Findings
+
+### vtat_missing is NOT Leakage
+
+- 48,000 total cancellations
+- Only 10,500 have vtat_missing=1 (early cancellations before vehicle assignment)
+- 37,500 cancelled rides have VTAT recorded (vehicle arrived, rider still cancelled)
+- vtat_missing captures a specific cancellation pattern with 100% precision, but only 22% of all cancellations
+
+### Feature Redundancy
+
+| Feature | Decision | Rationale |
+|---------|----------|-----------|
+| vtat_zone | Keep for LR | Captures non-linear avg_vtat pattern; avg_vtat violates log-odds linearity |
+| avg_vtat | Keep for trees | More granular; trees handle non-linearity naturally |
+| is_instant_arrival, is_timeout, is_long_wait | Drop | Deterministic subsets of avg_vtat/vtat_zone |
+| Temporal features (hour, weekday, month, etc.) | Drop | No signal confirmed in bivariate analysis |
+
+### Route Validation FAILED
+
+- Cramér's V = 0.45 was entirely an artifact of high cardinality (30k unique routes)
+- 64% of routes have ≤5 observations (extreme sparsity)
+- Cross-validated target encoding showed **zero lift** at all smoothing levels (m=5, 20, 50)
+- The signal does not generalize out-of-sample → **drop route**
+
+### Correlation Structure
+
+- All VIFs ≈ 1 (no multicollinearity)
+- Feature space is relatively orthogonal
+- No hidden non-linear dependencies beyond known structural ones
+
+## Final Feature Set for Modeling
+
+| Feature | Logistic Regression | Tree Models | Verdict |
+|---------|---------------------|-------------|---------|
+| vtat_zone | ✓ Use | ✗ Skip | Categorical, captures non-linear pattern |
+| avg_vtat | ✗ Skip | ✓ Use | Violates log-odds linearity for LR |
+| vtat_missing | ✓ Use | ✓ Use | Strong signal (100% precision on 22% of cancellations) |
+| pickup_location | ✓ Use | ✓ Use | Moderate signal (~10% rate swing) |
+| drop_location | ✓ Use | ✓ Use | Moderate signal (~10% rate swing) |
+| vehicle_type | ✗ Drop | ✗ Drop | Negligible signal (1% rate swing) |
+| route | ✗ Drop | ✗ Drop | Zero cross-validated lift |
+
+## Encoding Recommendations
+
+- **Logistic Regression**: frequency-encode locations, use vtat_zone
+- **Tree Models**: label-encode locations, use avg_vtat, set min_samples_leaf ≥ 50
+
+## Realistic Expectations
+
+- vtat_missing does most of the predictive work
+- Remaining features (avg_vtat/vtat_zone, locations) have weak effect sizes (Cohen's d ≈ 0.16)
+- This is a fundamentally hard prediction problem with limited signal
+
+## Deferred to Modeling Phase
+
+- Influential point analysis (Cook's distance) for logistic regression
 
