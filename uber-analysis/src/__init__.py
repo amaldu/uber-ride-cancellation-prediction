@@ -8,6 +8,8 @@ from .eda_utils import (
     binary_vs_binary,
     continuous_vs_binary,
     zone_breakdown,
+    continuous_by_category,
+    categorical_vs_categorical,
 )
 from .evaluation import (
     METRIC_TARGETS,
@@ -16,9 +18,19 @@ from .evaluation import (
     plot_evaluation,
 )
 from .feature_engineering import (
+    # Legacy functions
     create_target_encoding,
     create_temporal_features,
     create_vehicle_encoding,
     create_vtat_features,
     group_infrequent_locations,
+    # sklearn-compatible transformers
+    ColumnSelector,
+    FrequencyEncoder,
+    SafeLabelEncoder,
+    VTATZoneEncoder,
+    VTATImputer,
+    VTATPassthrough,
+    CategoricalPassthrough,
+    PassthroughTransformer,
 )
