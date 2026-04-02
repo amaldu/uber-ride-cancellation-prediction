@@ -40,7 +40,7 @@ The goal of the project is to predict Uber ride cancellations using machine lear
   - [Bivariate Analysis (Feature vs Target)](#bivariate-analysis-feature-vs-target)
     - [Engineered features](#engineered-features)
 - [4. Multivariate EDA](#4-multivariate-eda)
-- [5. Feature Engineering](#5-feature-engineering) *(pending)*
+- [5. Feature Engineering](#5-feature-engineering)
 - [6. Modeling](#6-modeling) *(pending)*
   - [6.1 Baseline: Logistic Regression](#61-baseline-logistic-regression) *(pending)*
   - [6.2 Random Forest](#62-random-forest) *(pending)*
@@ -525,16 +525,20 @@ The following columns have been removed:
  ```    
 
 
-#FIXME - move this to later
-## 3.3 Train/test/val split strategy
+## 3.3 Train/test split strategy
 
-The dataset was split temporally. Holiday periods such as December were intentionally kept in the test set in order to evaluate the model’s robustness under seasonal regime shifts and peak-demand conditions. Training and validation sets will be used to tune the model under regular operating conditions
+The dataset was split using **stratified random sampling** rather than a temporal split. This decision is justified by the EDA findings:
+
+1. **No temporal signal**: Bivariate analysis showed cancellation rate is flat across all temporal dimensions (daily, weekly, monthly, hourly). The 30-day rolling average is nearly constant with no drift.
+2. **No seasonal patterns**: Chi-square tests on weekday, month, week_of_year, and quarter all returned negligible effect sizes (Cramér's V ≈ 0).
+3. **Stationarity confirmed**: The statistical properties of the data do not change over time, so there's no concept drift to simulate.
+
+Stratified sampling ensures balanced class distribution in both sets, which is more important given the 68/32 class imbalance than preserving temporal order that carries no predictive signal.
 
 | Set | Percentage | Records | Purpose |
 |-----|------------|---------|---------|
-| Training | 75% | ~112,000 | Model training |
-| Validation | 15% | ~25,000 | Hyperparameter tuning |
-| Test | 10% | ~12,000 | Final evaluation |
+| Training | 80% | ~120,000 | Model training + cross-validation |
+| Test | 20% | ~30,000 | Final evaluation |
 
 ## Basic Analysis
 
@@ -659,3 +663,49 @@ Detailed in `06_multivar_eda.ipynb`.
 
 - Influential point analysis (Cook's distance) for logistic regression
 
+---
+
+# 5. Feature Engineering
+
+Detailed in `07_feature_engineering.ipynb`.
+
+## Pipeline Architecture
+
+Two separate sklearn pipelines were built to handle model-specific feature requirements:
+
+### Logistic Regression Pipeline
+- **vtat_zone**: One-hot encoded (5 categories → 5 binary features)
+- **vtat_missing**: Binary passthrough
+- **pickup_location_freq**: Frequency encoded
+- **drop_location_freq**: Frequency encoded
+
+### Tree Models Pipeline
+- **avg_vtat_imputed**: Numeric with sentinel -1 for missing
+- **vtat_missing**: Binary passthrough
+- **pickup_location_encoded**: Label encoded
+- **drop_location_encoded**: Label encoded
+
+## Key Design Decisions
+
+1. **No temporal features**: EDA showed zero signal across all temporal dimensions
+2. **No vehicle_type**: Only 1% rate swing, negligible predictive value
+3. **No route feature**: Failed cross-validation with zero lift at all smoothing levels
+4. **Model-specific VTAT handling**: 
+   - Zone encoding for LR (captures non-linearity that violates log-odds assumption)
+   - Numeric for trees (handle non-linearity naturally)
+5. **Sentinel imputation for trees**: -1 allows trees to learn the missing pattern as a split point
+6. **Frequency encoding for LR**: Captures location popularity without introducing high cardinality issues
+
+## Artifacts Saved
+
+| Artifact | Path | Purpose |
+|----------|------|---------|
+| lr_pipeline.joblib | data/silver/feature_engineering/ | Fitted LR preprocessing pipeline |
+| tree_pipeline.joblib | data/silver/feature_engineering/ | Fitted Tree preprocessing pipeline |
+| X_train_lr.parquet | data/silver/feature_engineering/ | Transformed training features for LR |
+| X_test_lr.parquet | data/silver/feature_engineering/ | Transformed test features for LR |
+| X_train_tree.parquet | data/silver/feature_engineering/ | Transformed training features for trees |
+| X_test_tree.parquet | data/silver/feature_engineering/ | Transformed test features for trees |
+| y_train.parquet | data/silver/feature_engineering/ | Training labels |
+| y_test.parquet | data/silver/feature_engineering/ | Test labels |
+| feature_info.json | data/silver/feature_engineering/ | Feature names metadata |
