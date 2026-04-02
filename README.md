@@ -4,15 +4,41 @@ A machine learning project to predict ride cancellations at booking time, enabli
 
 > **[Project Walkthrough](uber-analysis/PROJECT_WALKTROUGH.md)** Read this detailed document covering the full reasoning behind every decision in this project: problem framing (business objectives, cost matrix, metric selection), data acquisition and legal considerations, EDA insights (cleaning, leakage detection, univariate/bivariate findings), and future research directions. 
 
-### Dashboard Preview
+## Quick Start
 
-![KPIs & Univariate Analysis](uber-analysis/images/grafana_kpi_univariate.png)
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/uber-ride-cancellation-prediction.git
+cd uber-ride-cancellation-prediction
 
-![Bivariate Analysis](uber-analysis/images/grafana_bivariate.png)
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Linux/Mac
+# .venv\Scripts\activate   # Windows
 
-![Model Performance Monitoring](uber-analysis/images/grafana_model_monitoring.png)
+# Install dependencies
+pip install -r requirements.txt
 
-![Business Impact & ROI](uber-analysis/images/grafana_business_impact.png)
+# Run notebooks in order (01-09)
+cd uber-analysis/notebooks
+jupyter lab
+```
+
+## Make Predictions
+
+```python
+from uber_analysis.src.predict import predict_cancellation
+
+# Single prediction
+result = predict_cancellation(
+    avg_vtat=8.5,
+    pickup_location="Koramangala",
+    drop_location="Whitefield",
+    vtat_missing=0
+)
+print(f"Cancellation probability: {result['probability']:.2%}")
+print(f"Prediction: {'Will Cancel' if result['prediction'] else 'Will Complete'}")
+```
 
 ## Business Problem
 
@@ -54,17 +80,10 @@ Built a predictive model that identifies high-risk bookings at the time of booki
 
 ```
 ├── uber-analysis/
-│   ├── grafana/                   # Grafana monitoring dashboard
-│   │   ├── docker-compose.yml    # Docker setup for Grafana
-│   │   ├── export_data.py        # Exports analysis insights to SQLite
-│   │   ├── generate_dashboard.py # Generates Grafana dashboard JSON
-│   │   ├── start.sh              # One-command setup script
-│   │   ├── data/                 # SQLite database (generated)
-│   │   └── provisioning/         # Grafana auto-provisioning configs
 │   ├── data/
 │   │   ├── raw/                  # Original dataset
-│   │   ├── bronze/               # Cleaned data splits
-│   │   └── silver/               # Feature-engineered data
+│   │   ├── bronze/               # Cleaned data
+│   │   └── silver/               # Feature-engineered data, pipelines
 │   ├── models/                   # Trained model artifacts
 │   ├── notebooks/
 │   │   ├── 01_ingest_data.ipynb
@@ -74,69 +93,62 @@ Built a predictive model that identifies high-risk bookings at the time of booki
 │   │   ├── 05_bivar_eda.ipynb
 │   │   ├── 06_multivar_eda.ipynb
 │   │   ├── 07_feature_engineering.ipynb
-│   │   ├── 08_baseline_logistic_regression.ipynb
-│   │   ├── 09_random_forest.ipynb
-│   │   ├── 10_xgboost.ipynb
-│   │   └── 11_lightgbm.ipynb
-│   ├── images/                   # Dashboard screenshots
+│   │   ├── 08_baseline_models.ipynb
+│   │   └── 09_tuning_evaluation.ipynb
+│   ├── src/
+│   │   ├── feature_engineering.py  # Custom transformers
+│   │   ├── predict.py              # Inference script
+│   │   └── evaluation.py           # Evaluation utilities
+│   ├── tests/                    # Unit tests
+│   ├── grafana/                  # Monitoring dashboard
 │   ├── DATASET_INFO.md
-│   └── PROJECT_WALKTHROUGH.md    # Detailed methodology
+│   └── PROJECT_WALKTHROUGH.md
+├── requirements.txt
 └── README.md
 ```
 
+## Notebook Pipeline
+
+| Notebook | Purpose |
+|----------|---------|
+| 01-03 | Data ingestion, business context, cleaning |
+| 04-06 | Univariate, bivariate, multivariate EDA |
+| 07 | Feature engineering pipelines |
+| 08 | True baselines + candidate model comparison |
+| 09 | Hyperparameter tuning + final evaluation |
+
 ## Models Compared
 
-| Model | F2-Score | Recall | Precision | Status |
-|-------|----------|--------|-----------|--------|
-| Logistic Regression | 0.55 | 60% | 45% | Baseline |
-| Random Forest | 0.68 | 85% | 42% | Improved |
-| XGBoost | 0.73 | 96% | 38% | Best |
-| **LightGBM** | **0.73** | **95.6%** | 38.1% | **Selected** |
+| Model | ROC-AUC | Status |
+|-------|---------|--------|
+| True Baseline (vtat_missing) | ~0.65 | Floor |
+| Logistic Regression | ~0.68 | Candidate |
+| Random Forest | ~0.70 | Candidate |
+| XGBoost | ~0.72 | Candidate |
+| **LightGBM** | **~0.73** | **Selected** |
 
-## Features Engineered (17 total)
+## Features Used
 
-| Category | Features |
-|----------|----------|
-| VTAT | `avg_vtat_imputed`, `vtat_bucket`, `is_high_vtat` |
-| Location | `pickup_encoded`, `drop_encoded` (target encoded, top 10 + Other) |
-| Vehicle | `vehicle_type_encoded` |
-| Temporal | `hour`, `dayofweek`, `month`, `is_weekend`, `is_peak_hour`, `is_late_night` |
-| Cyclical | `hour_sin`, `hour_cos`, `dow_sin`, `dow_cos`, `month_sin`, `month_cos` |
+| Feature | Type | Description |
+|---------|------|-------------|
+| `avg_vtat` | Numeric | Vehicle time to arrival (minutes) |
+| `vtat_missing` | Binary | Whether VTAT is missing (strong signal) |
+| `pickup_location` | Categorical | 176 unique locations |
+| `drop_location` | Categorical | 176 unique locations |
 
-## Run the Grafana Dashboard Locally
-
-The Grafana dashboard provides interactive visualizations of the EDA insights and model monitoring metrics. It runs via Docker.
-
-**Prerequisites**: Docker and Docker Compose installed.
+## Run Tests
 
 ```bash
-cd uber-analysis/grafana
-
-# Option 1: One-command setup (recommended)
-./start.sh
-
-# Option 2: Step by step
-python3 export_data.py           # Export insights to SQLite
-python3 generate_dashboard.py    # Generate dashboard JSON
-docker compose up -d             # Start Grafana
+cd uber-analysis
+python -m pytest tests/ -v
 ```
 
-Open **http://localhost:3000** and log in with `admin` / `admin`.
+## Run the Grafana Dashboard
 
-The dashboard **"Uber Ride Cancellation — Analysis & Model Monitoring"** is set as the home dashboard and includes:
-
-| Section | Panels |
-|---------|--------|
-| **KPIs** | Total bookings, cancellation rate, lost revenue, features engineered |
-| **Univariate Analysis** | Target distribution, vehicle type, VTAT distribution, hourly/daily/monthly patterns |
-| **Bivariate Analysis** | VTAT buckets vs cancellation, top pickup/drop locations, mutual information, correlations, Cramer's V |
-| **Model Monitoring** | 4-model comparison table, LightGBM gauges (F2/Recall/Precision/PR-AUC/ROC-AUC), feature importance for all models |
-| **Business Impact** | Net savings, ROI, daily interventions, confusion matrix breakdown, financial breakdown |
-
-To stop Grafana:
 ```bash
 cd uber-analysis/grafana
-docker compose down
+./start.sh
+# Open http://localhost:3000 (admin/admin)
 ```
 
 ## Dataset
@@ -148,20 +160,11 @@ docker compose down
 ## Tech Stack
 
 - **Analysis**: Python, Pandas, NumPy
-- **Visualization**: Plotly, Matplotlib, Seaborn
-- **Modeling**: Scikit-learn, XGBoost, LightGBM
-- **Dashboard**: Grafana
-- **Infrastructure**: Docker, Docker Compose
-- **Data Storage**: Parquet, SQLite
-
-## Future Improvements
-
-- [ ] Implement A/B testing framework for interventions
-- [ ] Explore deep learning approaches
-- [ ] Add geographic clustering features
-- [ ] Build API endpoint for production deployment
-- [ ] Add data drift detection to Grafana monitoring
+- **Modeling**: Scikit-learn, XGBoost, LightGBM, Optuna
+- **Visualization**: Matplotlib, Seaborn
+- **Dashboard**: Grafana, Docker
+- **Testing**: pytest
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+MIT License — see [LICENSE](LICENSE) for details.
