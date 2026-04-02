@@ -1,9 +1,196 @@
-"""Feature engineering transformations for the Uber cancellation dataset."""
+"""Feature engineering transformations for the Uber cancellation dataset.
+
+This module contains:
+1. Standalone functions for feature creation (legacy)
+2. sklearn-compatible transformers for pipeline use
+"""
 
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 
+
+# =============================================================================
+# SKLEARN-COMPATIBLE TRANSFORMERS
+# =============================================================================
+
+class ColumnSelector(BaseEstimator, TransformerMixin):
+    """Select specific columns from a DataFrame."""
+    
+    def __init__(self, columns):
+        self.columns = columns
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X):
+        return X[self.columns].copy()
+
+
+class FrequencyEncoder(BaseEstimator, TransformerMixin):
+    """Encode categorical variables by their frequency in the training set.
+    
+    Unseen categories in transform() are assigned frequency 0.
+    """
+    
+    def __init__(self, columns):
+        self.columns = columns
+        self.freq_maps_ = {}
+    
+    def fit(self, X, y=None):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        for col in self.columns:
+            self.freq_maps_[col] = X[col].value_counts(normalize=True).to_dict()
+        return self
+    
+    def transform(self, X):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X.copy()
+        for col in self.columns:
+            X[f'{col}_freq'] = X[col].map(self.freq_maps_[col]).fillna(0)
+        return X[[f'{col}_freq' for col in self.columns]]
+
+
+class SafeLabelEncoder(BaseEstimator, TransformerMixin):
+    """Label encode categorical variables, handling unseen categories.
+    
+    Unseen categories in transform() are assigned -1.
+    """
+    
+    def __init__(self, columns):
+        self.columns = columns
+        self.encoders_ = {}
+    
+    def fit(self, X, y=None):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        for col in self.columns:
+            le = LabelEncoder()
+            le.fit(X[col].astype(str))
+            self.encoders_[col] = le
+        return self
+    
+    def transform(self, X):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X.copy()
+        result = pd.DataFrame()
+        for col in self.columns:
+            le = self.encoders_[col]
+            result[f'{col}_encoded'] = X[col].astype(str).apply(
+                lambda x: le.transform([x])[0] if x in le.classes_ else -1
+            )
+        return result
+
+
+class VTATZoneEncoder(BaseEstimator, TransformerMixin):
+    """One-hot encode vtat_zone for logistic regression.
+    
+    Handles NaN as a separate category.
+    """
+    
+    def __init__(self):
+        self.encoder_ = None
+        self.categories_ = None
+    
+    def fit(self, X, y=None):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        self.encoder_ = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
+        self.encoder_.fit(X[['vtat_zone']].astype(str))
+        self.categories_ = self.encoder_.categories_[0]
+        return self
+    
+    def fit(self, X, y=None):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        self.encoder_ = OneHotEncoder(sparse_output=False, handle_unknown='ignore')
+        self.encoder_.fit(X[['vtat_zone']].astype(str))
+        self.categories_ = self.encoder_.categories_[0]
+        return self
+    
+    def transform(self, X):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        encoded = self.encoder_.transform(X[['vtat_zone']].astype(str))
+        col_names = [f'vtat_zone_{cat}' for cat in self.categories_]
+        return pd.DataFrame(encoded, columns=col_names, index=X.index)
+
+
+class VTATImputer(BaseEstimator, TransformerMixin):
+    """Impute missing avg_vtat with sentinel value for sklearn tree models.
+    
+    sklearn's RandomForest doesn't handle NaN, so we use a sentinel value
+    that the tree can learn to split on.
+    """
+    
+    def __init__(self, sentinel_value=-1):
+        self.sentinel_value = sentinel_value
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X.copy()
+        X['avg_vtat_imputed'] = X['avg_vtat'].fillna(self.sentinel_value)
+        return X[['avg_vtat_imputed']]
+
+
+class VTATPassthrough(BaseEstimator, TransformerMixin):
+    """Pass through avg_vtat keeping NaN values.
+    
+    For XGBoost/LightGBM which handle NaN natively by learning
+    the optimal split direction for missing values.
+    """
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X.copy()
+        return X[['avg_vtat']].rename(columns={'avg_vtat': 'avg_vtat_native'})
+
+
+class CategoricalPassthrough(BaseEstimator, TransformerMixin):
+    """Pass through categorical columns preserving category dtype.
+    
+    For LightGBM's native categorical feature support.
+    Categories are learned from training data; unseen categories
+    in transform() become NaN (which LightGBM handles).
+    """
+    
+    def __init__(self, columns):
+        self.columns = columns
+        self.categories_ = {}
+    
+    def fit(self, X, y=None):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        for col in self.columns:
+            self.categories_[col] = X[col].astype('category').cat.categories.tolist()
+        return self
+    
+    def transform(self, X):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X.copy()
+        result = pd.DataFrame(index=X.index)
+        for col in self.columns:
+            result[col] = pd.Categorical(
+                X[col], 
+                categories=self.categories_[col]
+            )
+        return result
+
+
+class PassthroughTransformer(BaseEstimator, TransformerMixin):
+    """Pass through specified columns unchanged."""
+    
+    def __init__(self, columns):
+        self.columns = columns
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X):
+        X = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        return X[self.columns].copy()
+
+
+# =============================================================================
+# LEGACY STANDALONE FUNCTIONS (kept for backward compatibility)
+# =============================================================================
 
 def create_temporal_features(input_df):
     """Derive time-based features from date + time columns."""
@@ -93,11 +280,11 @@ def create_target_encoding(input_df, column, target_col='is_cancelled', train_me
         means_dict = smoothed_means.to_dict()
         means_dict['__global__'] = global_mean
 
-        encoded = input_df[column].map(means_dict).fillna(global_mean)
+        encoded = input_df[column].map(means_dict).astype(float).fillna(global_mean)
         return encoded, means_dict
     else:
         global_mean = train_means.get('__global__', 0.32)
-        encoded = input_df[column].map(train_means).fillna(global_mean)
+        encoded = input_df[column].map(train_means).astype(float).fillna(global_mean)
         return encoded
 
 
