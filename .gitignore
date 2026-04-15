@@ -28,5 +28,5 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Reports (timestamped copies; latest.md and charts/ are tracked)
-uber-analysis/reports/analysis_*.md
+# Generated data (reproduced by pipeline)
+uber-analysis/grafana/data/*.db
