@@ -1,26 +1,15 @@
-"""Main orchestrator: run the full analysis pipeline and export to Grafana.
+"""Run the full analysis pipeline and export results to Grafana.
 
-Pipeline stages:
-    1. Clean raw CSV → bronze parquet
-    2. Enrich with derived columns
-    3. Univariate analysis
-    4. Bivariate analysis
-    5. Multivariate analysis
-    6. Export results to SQLite
-    7. Generate Grafana dashboard JSON
+Usage: python run_analysis.py
 """
 
 import logging
-import os
-import subprocess
 import sys
 from pathlib import Path
 
 import pandas as pd
 
 UBER_ANALYSIS_DIR = Path(__file__).resolve().parent.parent.parent
-GRAFANA_DIR = UBER_ANALYSIS_DIR / "grafana"
-
 sys.path.insert(0, str(UBER_ANALYSIS_DIR / "src"))
 
 from analysis.cleaning import clean
@@ -28,11 +17,15 @@ from analysis import univariate, bivariate, multivariate
 from grafana.export_db import export as export_to_sqlite
 from grafana.dashboard import build as build_dashboard
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s  %(message)s",
+    datefmt="%H:%M:%S",
+)
+log = logging.getLogger(__name__)
 
 
 def _enrich(df: pd.DataFrame) -> pd.DataFrame:
-    """Add derived columns that bivariate and multivariate stages expect."""
     df = df.copy()
     df["date"] = pd.to_datetime(df["date"])
     df["hour"] = pd.to_datetime(df["time"], format="%H:%M:%S").dt.hour
@@ -54,59 +47,34 @@ def _enrich(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def analyze(raw_csv: str | None = None) -> None:
-    """Run the full analysis pipeline and export to SQLite + Grafana JSON."""
+def main():
     data_dir = UBER_ANALYSIS_DIR / "data"
-    raw_csv = raw_csv or str(data_dir / "raw" / "ncr_ride_bookings.csv")
+    raw_csv = str(data_dir / "raw" / "ncr_ride_bookings.csv")
 
-    logger.info("[1/7] Cleaning data...")
+    log.info("[1/7] Cleaning data...")
     df_clean = clean(raw_csv, output_dir=str(data_dir / "bronze"))
 
-    logger.info("[2/7] Enriching features...")
+    log.info("[2/7] Enriching features...")
     df = _enrich(df_clean)
 
-    logger.info("[3/7] Running univariate analysis...")
-    univar_results = univariate.run(df_clean)
+    log.info("[3/7] Univariate analysis...")
+    univar = univariate.run(df_clean)
 
-    logger.info("[4/7] Running bivariate analysis...")
-    bivar_results = bivariate.run(df)
+    log.info("[4/7] Bivariate analysis...")
+    bivar = bivariate.run(df)
 
-    logger.info("[5/7] Running multivariate analysis...")
-    multivar_results = multivariate.run(df)
+    log.info("[5/7] Multivariate analysis...")
+    multivar = multivariate.run(df)
 
-    logger.info("[6/7] Exporting to SQLite...")
-    db_path = export_to_sqlite(univar_results, bivar_results, multivar_results, df)
+    log.info("[6/7] Exporting to SQLite...")
+    db = export_to_sqlite(univar, bivar, multivar, df)
 
-    logger.info("[7/7] Generating Grafana dashboard...")
-    dash_path = build_dashboard()
+    log.info("[7/7] Generating dashboard...")
+    dash = build_dashboard()
 
-    logger.info("Analysis complete.")
-    logger.info("  Database: %s", db_path)
-    logger.info("  Dashboard: %s", dash_path)
-
-
-def serve() -> None:
-    """Start Grafana via docker compose."""
-    compose_file = GRAFANA_DIR / "docker-compose.yml"
-    if not compose_file.exists():
-        logger.error("docker-compose.yml not found at %s", compose_file)
-        sys.exit(1)
-
-    logger.info("Starting Grafana at http://localhost:3000 (admin/admin)...")
-    subprocess.run(
-        ["docker", "compose", "up", "-d"],
-        cwd=str(GRAFANA_DIR),
-        check=True,
-    )
-    logger.info("Grafana is running. Open http://localhost:3000")
+    log.info("Done. Database: %s", db)
+    log.info("Now run: docker compose up  (in uber-analysis/grafana/)")
 
 
-def stop() -> None:
-    """Stop Grafana."""
-    logger.info("Stopping Grafana...")
-    subprocess.run(
-        ["docker", "compose", "down"],
-        cwd=str(GRAFANA_DIR),
-        check=True,
-    )
-    logger.info("Grafana stopped.")
+if __name__ == "__main__":
+    main()
