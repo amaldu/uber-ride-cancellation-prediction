@@ -28,8 +28,5 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Project-specific
+# Generated data (reproduced by pipeline)
 uber-analysis/grafana/data/*.db
-uber-analysis/src/eda_utils/__pycache__/
-GUIDELINE.md
-uber-analysis/PROJECT_WALKTROUGH_backup.md
