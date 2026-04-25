@@ -1,19 +1,22 @@
 # Project Walkthrough
 
-Here I explain the step-by-step logic and workflow followed in this machine learning project, from data collection to model evaluation. 
-
-The goal of the project is to predict Uber ride cancellations using machine learning to enable proactive intervention by creating strategies to reduce the overall cancellation rate.
+This documents explains the step-by-step logic and workflow following CRISP-DM adapted. The goal of the project is to predict Uber ride cancellations using machine learning to enable proactive intervention by creating strategies to reduce the overall cancellation rate.
 
 ---
 
 ## Index
-
-- [1. Problem Framing](#problem-framing)
-  - [1.1 Definition of the objective in business terms](#11-defininition-of-the-objective-in-business-terms)
+- [Project Walkthrough](#project-walkthrough)
+  - [Index](#index)
+- [Problem Framing](#problem-framing)
+  - [1.1 Defininition of the objective in business terms](#11-defininition-of-the-objective-in-business-terms)
   - [1.2 How will the solution be used?](#12-how-will-the-solution-be-used)
   - [1.3 What are the current solutions/workarounds (if any)?](#13-what-are-the-current-solutionsworkarounds-if-any)
   - [1.4 How should the problem be framed](#14-how-should-the-problem-be-framed)
   - [1.5 How should performance be measured?](#15-how-should-performance-be-measured)
+    - [Recall: deriving the target from business constraints](#recall-deriving-the-target-from-business-constraints)
+    - [Precision: sanity check](#precision-sanity-check)
+    - [Validation → Precision = 50% and Recall = 40%:](#validation--precision--50-and-recall--40)
+    - [Final metrics:](#final-metrics)
   - [1.6 Is the performance measure aligned with the business objective?](#16-is-the-performance-measure-aligned-with-the-business-objective)
   - [1.7 What would be the minimum performance needed to reach the business objective?](#17-what-would-be-the-minimum-performance-needed-to-reach-the-business-objective)
   - [1.8 What are comparable problems? Can you reuse experience or tools?](#18-what-are-comparable-problems-can-you-reuse-experience-or-tools)
@@ -24,50 +27,61 @@ The goal of the project is to predict Uber ride cancellations using machine lear
 - [2. Get the Data](#2-get-the-data)
   - [2.1 List the data](#21-list-the-data)
   - [2.2 Origin of the dataset](#22-origin-of-the-dataset)
-  - [2.3 Storage requirements for the dataset](#23-storage-requirements-for-the-dataset)
+  - [2.3 Storage requirements for the dataset:](#23-storage-requirements-for-the-dataset)
   - [2.4 Check legal obligations](#24-check-legal-obligations)
   - [2.5 Access authorizations](#25-access-authorizations)
   - [2.6 Data ingestion and overview](#26-data-ingestion-and-overview)
   - [2.7 Format of the data](#27-format-of-the-data)
-  - [2.8 Sensitive data analysis (PPI)](#28-sensitive-data-analysis-ppi)
-- [3. EDA Insights](#3-eda-insights)
+  - [2.8 Sensitive data analysis (PPI):](#28-sensitive-data-analysis-ppi)
+- [3. EDA insights](#3-eda-insights)
   - [3.1 Size and type of data](#31-size-and-type-of-data)
   - [3.2 Cleaning and preprocessing steps](#32-cleaning-and-preprocessing-steps)
     - [3.2.1 Data Leakage Analysis](#321-data-leakage-analysis)
-  - [3.3 Train/test/val split strategy](#33-traintestva-split-strategy)
+      - [Resulting dataset with data types optimized](#resulting-dataset-with-data-types-optimized)
+  - [3.3 Train/test split strategy](#33-traintest-split-strategy)
   - [Basic Analysis](#basic-analysis)
   - [Univariate Analysis](#univariate-analysis)
+    - [TODO - Is there a relationship between customers booking more than once and cancelling? Same vehicle/location each time? Are repeat-bookers more likely to cancel?](#todo---is-there-a-relationship-between-customers-booking-more-than-once-and-cancelling-same-vehiclelocation-each-time-are-repeat-bookers-more-likely-to-cancel)
+    - [TODO - No description of vehicle types in the dataset. Understanding their characteristics (size, price tier) could reveal patterns.](#todo---no-description-of-vehicle-types-in-the-dataset-understanding-their-characteristics-size-price-tier-could-reveal-patterns)
+    - [TODO - Find geographical info to compute actual distances and check if pickup == drop.](#todo---find-geographical-info-to-compute-actual-distances-and-check-if-pickup--drop)
   - [Bivariate Analysis (Feature vs Target)](#bivariate-analysis-feature-vs-target)
     - [Engineered features](#engineered-features)
 - [4. Multivariate EDA](#4-multivariate-eda)
+  - [Analyses Performed](#analyses-performed)
+  - [Key Findings](#key-findings)
+    - [Missingness is not confounded](#missingness-is-not-confounded)
+    - [Feature redundancy resolved](#feature-redundancy-resolved)
+    - [Correlation structure](#correlation-structure)
+  - [Final Feature Set for Modeling](#final-feature-set-for-modeling)
+  - [Encoding Recommendations](#encoding-recommendations)
+  - [Realistic Expectations](#realistic-expectations)
+  - [Deferred to Modeling Phase](#deferred-to-modeling-phase)
 - [5. Feature Engineering](#5-feature-engineering)
-- [6. Modeling](#6-modeling) *(pending)*
-  - [6.1 Baseline: Logistic Regression](#61-baseline-logistic-regression) *(pending)*
-  - [6.2 Random Forest](#62-random-forest) *(pending)*
-  - [6.3 XGBoost](#63-xgboost) *(pending)*
-  - [6.4 LightGBM](#64-lightgbm) *(pending)*
-- [7. Model Comparison and Selection](#7-model-comparison-and-selection) *(pending)*
+  - [Pipeline Architecture](#pipeline-architecture)
+    - [Logistic Regression Pipeline](#logistic-regression-pipeline)
+    - [Tree Models Pipeline](#tree-models-pipeline)
+  - [Key Design Decisions](#key-design-decisions)
+  - [Artifacts Saved](#artifacts-saved)
 
 ---
 
 # Problem Framing
 ## 1.1 Defininition of the objective in business terms
 
-Looking at the Uber ride data from 2024, I identified a critical operational challenge, 37.500 rides out of 150.000 the total bookings never reached completion. 
+Uber offers a booking service in an Indian metropolitan area and provided me with data from all the bookings of 2024. I identified that the dataset contains 150,000 bookings of which the 32% never reached completion status, that includes different cancellation type based on reason of cancellation or lack of driver available. 
 
-#FIXME - recheck the values with the real dataset size
-This means that the 32% (37.500 rides) of all bookings end in cancellation of which a 19.15% (27.000 rides) are made by customers and 7.45% (10.500 rides) are made by drivers. This as a result, means that for every 4 ride requests, 1 fails to complete. 
+This means almos 1 cancellation for every 3 rides.  
 
 In terms of business impact, I can think of the following areas:
 
 1. Financial impact:
-   1. Revenue loss: the dataset does not provide the ride prices but from my experience, if I estimate an averange booking value of 20$ per ride without taking into consideration the type of vehicle, the 37.430 cancelled rides represent 748.600$ in lost revenue in 2024. 
-   2. Hidden operational costs: there are other costs like the time and fuel wasted by drivers while the ride is not cancelled yet, the costs of the processing platform (servers, computations, payment platform usage) and the potential churn of those frustrated customers.
-   3. Opportunity cost: every cancellation activates resources within the company that also have a cost, some examples can be contacting customer supports, making refunds, managing complains, etc. They cost money that could be invested in other areas to promote the growth of the company.
+   1. Revenue loss
+   2. Hidden operational costs like the time and fuel wasted by drivers while the ride is not cancelled yet, the costs from the processing platform and the potential churn of frustrated customers
+   3. Opportunity cost from resources within the company like customer support, refunds, managing complains, etc.
 
 2. Operational impact:
-   1. Imbalance in supply and demand: when drivers are removed from the pool of available services while they are on their way to pick up the customer. If the price per ride depends on the amount of available drivers, this can artificially increase the price of the available services and potentially damaging the image of the company. 
-   2. Driver insatisfaction: drivers are also consuming Uber's service and they also become frustrated and potentially change their providers if the customer is cancelling their rides too often. 
+   1. Imbalance in supply & demand. While drivers are booked and removed from the pool, this can artificially increase the price of the available services and potentially damaging the image of the company
+   2. Driver insatisfaction if the customer is cancelling their rides too often
    
 Let's imagine that Uber wants to reduce the cancellation rate by 10%, this means 3.700 more rides completed and almost 75000$ recovered so building a predictive model that identifies bookings with high cancellation risk at the time of booking could help achieving it.
 
@@ -75,158 +89,132 @@ Let's imagine that Uber wants to reduce the cancellation rate by 10%, this means
 
 The model will be deployed as a real-time prediction system integrated into Uber's booking workflow so when a customer requests a ride, the model will score the cancellation probability.
 
-This will help other parts of the company to develop and implement long-term fixes like:
+This will help other departments of the company to develop and implement long-term fixes like:
 
-- Increase customer engagement in high-risk rides: send confirmation messages, increase ETA updates, create loyalty points, etc. 
-- Cluster and route drivers: based on their experience in completion and ratings, Uber can send drivers to higher risk rides.
+- Increase customer engagement on high-risk rides by sending booking confirmation messages, provide more frequent ETA updates, or offering loyalty points
+  
+- Optimization of the algorithm for driver allocation, if driver rating is a strong indicator we can redistribute or prioritize better drivers more often
 
-All those techniques can also be monitored accross time and regions to better understand issues in their implementation and evolution over time.
+**[After EDA]** Waiting time is a strong cancellation indicator so a good idea would be to redistribute drivers to keep a low waiting time in every area
+
 
 ## 1.3 What are the current solutions/workarounds (if any)?
 
-Neither the metadata nor the dataset provide any other information about different approaches previously taken by the company.
+There are none
 
 ## 1.4 How should the problem be framed
 
-I'm going to start framing it as a supervised binary classification problem: cancelled vs. completed even though in future approaches it would be interesting to try a multi-class approach: cancelled by customer / driver vs. completed vs. incompleted if business value is demonstrated. 
+I'm going to start framing it as a supervised binary classification problem: cancelled vs. completed. In future approaches it would be interesting to try a multi-class approach using columns that show the reason for cancelling
 
-The training will be offline on historical batch data I would plan to re-train it daily and monitor concept drift to check if concept drift requires faster adaptation and we have to change to near-online or online training.
+The training will be offline on historical batch data, re-trained daily and monitor concept drift to check if it requires faster adaptation and we have to change to near-online or online training
 
-The inference will be in real time when booking happens. 
+The inference will be in real time
+
+**[After EDA]** The distribution of cancellation rate and total rides over the year did not show clear patterns so I would strongly to advocate for offline training + daily re-train as the first option
 
 ## 1.5 How should performance be measured?
 
-The dataset shows that we have a cancellation rate of 32%, which is moderately imbalanced so I need metrics that go beyond simple accuracy. 
-
-Here you can find a cost matrix applied to the concrete business scenarios that I defined after having conversations with product or the Ops team in order to measure the net business cost of every possible outcome:
+After having a chat with Product and Ops teams I define a cost matrix:
 
 | Outcome | What happens | Cost/Benefit | Business Meaning |
 |------------|----------------|----------------|------------------|
-| True Positive (TP) | Ride is Cancelled & System intervenes | +$15 benefit | Prevented cancellation saves ~$20 revenue, minus ~$5 intervention cost |
-| False Positive (FP) | Ride is NOT Cancelled & System intervenes | -$5 cost | Unnecessary intervention (incentive + operational time) |
-| True Negative (TN) | Ride is NOT Cancelled & System does NOT intervene | $0 | Normal operation, no action needed |
-| False Negative (FN) | Ride is Cancelled & System does NOT intervene | -$20 cost | Lost booking revenue + customer dissatisfaction + driver wasted time |
+| True Positive (TP) | Ride is cancelled & system intervenes | +$15 | Prevented cancellation saves $20 revenue, minus $5 intervention cost |
+| False Positive (FP) | Ride is NOT cancelled & system intervenes | -$5 | Unnecessary intervention cost |
+| True Negative (TN) | Ride is NOT cancelled & system does NOT intervene | $0 | Ride completes normally, no model contribution |
+| False Negative (FN) | Ride is cancelled & system does NOT intervene | -$20 | Lost booking revenue + driver idle time + customer dissatisfaction |
 
-**Key insight here: the cost asymmetry is approximately 4:1!**
+The cost asymmetry is **3:1** (net TP benefit $15 vs FP cost $5), so catching one cancellation is worth tolerating up to 3 false alarms. This makes **recall the primary metric** — the goal is to catch as many cancellations as possible while keeping false alarms manageable.
 
-A missed cancellation (FN) costs $20, while a false alarm (FP) costs $5. This means that I should be willing to accept up to 4 false alarms to catch 1 additional cancellation.
+### Recall: deriving the target from business constraints
 
-This problem requires of metrics that give importance to the balance between catching cancellations (recall) with not overwhelming operations with false alarms (precision).
+**Step 1 — Lower bound from financial targets**
 
-- **Recall** = TP / (TP + FN) = "Of all actual cancellations, what % did I catch?"
-- **Precision** = TP / (TP + FP) = "Of all my cancellation predictions, what % were correct?"
-
-These metrics have trade-offs because:
-- If I want to catch MORE cancellations (increase recall), I will end up catching more false alarms (precision)
-- If I want FEWER false alarms (increase precision), I will end up missing more cancellations (lower recall)
-  
-I need to find the right balance, and that balance depends on the **net business costs** of each type of error.
-
-**Calculations**
-
-*Precision*: 
-
-If I intervene on a predicted cancellation:
-- Expected benefit if correct (probability = precision): Save $20
-- Expected cost if wrong (probability = 1 - precision): Waste $5
+Working assumption: precision = 50% (for every cancellation caught, we generate one false alarm). Net savings per TP caught:
 
 ```
-Precision × $20 = (1 - Precision) × $5
-20P = 5 - 5P → 25P = 5 → P = 0.20
+Net savings per TP = $15 (TP benefit) - $5 (one FP generated at 50% precision) = $10 per TP
 ```
 
-So every decision above 20% generates positive value BUT the business value here is also important. For example, the operational capacity, the customer experice or the credibility are also factors that are important to take into consideration and are not measured here. In order to give a valuable increase that protects these factors I will increase Precision to the 50% (every second ride).
+The financial team sets two targets:
 
-*Recall*:
-
-Given the asymmetry in the cost (FN is way more expensive than FP), I will prioritize recall over precision. Having 37.430 cancellations and a defined 60% of precision, let's talk about the constrains applied to this metric:
-
-1. How many interventions can I make?
-   The operational capacity is very important to take into consideration. Let's say we start with a model that can classify 50.000 rides/year as a start point. 
-
+Minimum viability ($50K/year):
 ```
-TP = Total interventions x precision = 50.000 x 0.60 = 30.000
-Recall = TP / Real Positives = 30.000 / 37.430 = 0.801 ~ 80%
-```
-With 50.000 interventions/year I can reach around 80% of recall
-
-2. What is the minimum ROI required?
-   The project needs to generate enough davings to justify its existence, let's make some calculations:
-
-   If the costs of each possible outcome are:
-   - Missed cancellation (FN): $20
-   - False alarm (FP): $5
-   - Success rate of every intevention was set at 50%
-
-```Revenue at risk = 37.430 / 20 = 748.600 dollars
-Expected savings = TP x 20 x 0.5 - FP x 5 
-
-    To get FP from precision:
-    FP = TP x (1 - precision)/precision = TP x 0.4/0.6 = TP x 0.667
-
-Then expected savings are:
-Expected savings = TP x 20 x 0.5 - (TP x 0.667) x 5 = TP x 6.67
-
+TP × 10 ≥ 50.000 → TP ≥ 5.000 → Recall ≥ 5.000 / 48.000 = 10%
 ```
 
-Time to get back to the financial team and decide which is the minimum cost. They say the minimum target is $50.000/ year and the target is $100.000/year:
-
-Minimum savings to be viable:
+Target ROI ($100K/year):
 ```
-TP x 6.67 ≥ 50.000 → TP ≥ 50.000/6.67 = 7.496'25
-Recall = 7.496/ 37.430 = 0.2
+TP × 10 ≥ 100.000 → TP ≥ 10.000 → Recall ≥ 10.000 / 48.000 = 21%
 ```
 
-Target savings:
-```
-TP x 6.67 ≥ 100.000 → TP ≥ 100.000/6.67 = 14.992'5
-Recall = 14.993/ 37.430 = 0.4
-```
+**Step 2 — Upper bound from operational capacity**
 
-Let's gather all the constrains and their results:
-
-| Constraint | Derived Recall Range | Limiting Factor |
-|------------|---------------------|-----------------|
-| Break-even (minimum useful) | ≥ 20% | Below this, savings don't cover costs |
-| Operational capacity | ≤ 80% | Maximum for 50K interventions with 60% precision |
-| Target ROI | ≥ 40% | Requirement decided by the business |
-
-Based on these values I will choose a 70% of recall. 
-
-
-### Validation of both metrics → Precision = 60% and Recall = 70%:
+The system can handle 50.000 interventions/year. At 50% precision (FP = TP), total interventions = 2 × TP:
 
 ```
-TP = caugth cancellations = 0.7 X 37.430 = 26201  
-FP = false alarms = 26.201 x 0.4/0.6 = 17.467 
-Total interactions = 26.201 + 17.467 = 43.668 →  less than operational capacity
+2 × TP ≤ 50.000 → TP ≤ 25.000 → Recall ≤ 25.000 / 48.000 = 52%
+```
+
+**Step 3 — Choose recall target**
+
+| Constraint | Recall bound | Reason |
+|------------|-------------|--------|
+| Minimum viability | ≥ 10% | Below this, savings don't cover costs |
+| Target ROI | ≥ 21% | Minimum to hit the $100K business target |
+| Operational capacity | ≤ 52% | Max catchable cancellations within 50K intervention budget |
+
+Valid window: **21% – 52%**. Choosing **Recall = 40%** as a conservative starting target with headroom on both sides.
+
+### Precision: sanity check
+
+With Recall = 40% and the 50% precision working assumption:
+
+```
+TP = 0.4 × 48.000 = 19.200
+FP = 19.200 (at 50% precision)
+Total interventions = 38.400 → within 50K operational cap ✓
+```
+
+Break-even precision — the minimum precision where every positive prediction has positive expected value:
+
+```
+Precision × $15 - (1 - Precision) × $5 ≥ 0
+15P - 5 + 5P ≥ 0 → 20P ≥ 5 → P ≥ 0.25
+```
+
+50% precision > 25% break-even ✓
+
+### Validation → Precision = 50% and Recall = 40%:
+
+```
+TP = 0.4 × 48.000 = 19.200
+FP = 19.200 (at 50% precision)
+Total interactions = 38.400 → within operational capacity ✓
 
 &
 
-Savings = 26.201 x 20 x 0.5 = 262.010
-False alarm cost = 17.467 x 5 = 87.335
-Net savings = 262.010 - 87.335 = 174.675 → more than target ROI 
+Net savings = 19.200 × 15 - 19.200 × 5 = 288.000 - 96.000 = 192.000 → above target ROI ✓
 
 &
 
-Precision  > Break-even precision (20%)
+Precision (50%) > break-even precision (25%) ✓
 ```
 
 ### Final metrics:
 
 Based on the analysis above I decided to choose metrics that:
 
-1. Reflect the cost assymetry of 4:1
+1. Reflect the cost asymmetry of 3:1
 2. Work for moderated class imbalance
 
 
 | Metric | Value | Reasoning |
-|------------|---------------------|-----------------|
-| F2-score  | Since β² =$20/$5 = 4 ≥ 0.68 F2 = 5×P×R / (4P + R) = 0.68 | Weights recall 4x more than precision |
-| Recall | ≥ 70% | Catching FN is the real challenge due to their cost |
-| Precision | ≥ 60% | Also important due to FP costs |
-| PR-AUC Curve | The best possible | Useful because the dataset is imbalanced |
-| Expected profit | ≥ $100K | Final sanity check: Profit = TP×$10 - FP×$5. Validates that model delivers actual business value. |
+|------------|---------------------|------------------|
+| Recall | ≥ 40% | Derived from the $100K ROI target and operational capacity constraints |
+| Precision | ≥ 50% | Working assumption used throughout the analysis; above 25% break-even |
+| F2-score | ≥ 0.42 | β² = $15/$5 = 3 → β ≈ 1.73, rounded to F2 = 5×P×R / (4P + R); value at P=50%, R=40% |
+| PR-AUC | The best possible | Model comparison metric for imbalanced datasets |
+| Expected profit | TP×$15 - FP×$5 ≥ $100K | Final sanity check: validates the model delivers actual business value |
 
 ## 1.6 Is the performance measure aligned with the business objective?
 
