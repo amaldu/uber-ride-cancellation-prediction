@@ -13,9 +13,10 @@ This documents explains the step-by-step logic and workflow following CRISP-DM a
   - [1.3 What are the current solutions/workarounds (if any)?](#13-what-are-the-current-solutionsworkarounds-if-any)
   - [1.4 How should the problem be framed](#14-how-should-the-problem-be-framed)
   - [1.5 How should performance be measured?](#15-how-should-performance-be-measured)
-    - [Recall: deriving the target from business constraints](#recall-deriving-the-target-from-business-constraints)
-    - [Precision: sanity check](#precision-sanity-check)
-    - [Validation → Precision = 50% and Recall = 40%:](#validation--precision--50-and-recall--40)
+    - [Primary objective](#primary-objective)
+    - [Per-prediction expected value](#per-prediction-expected-value)
+    - [Operational capacity constrain \& its strategy](#operational-capacity-constrain--its-strategy)
+    - [Business constraints to accept (or reject) the trained model](#business-constraints-to-accept-or-reject-the-trained-model)
     - [Final metrics:](#final-metrics)
   - [1.6 Is the performance measure aligned with the business objective?](#16-is-the-performance-measure-aligned-with-the-business-objective)
   - [1.7 What would be the minimum performance needed to reach the business objective?](#17-what-would-be-the-minimum-performance-needed-to-reach-the-business-objective)
@@ -123,121 +124,100 @@ After having a chat with Product and Ops teams I define a cost matrix:
 | True Negative (TN) | Ride is NOT cancelled & system does NOT intervene | $0 | Ride completes normally, no model contribution |
 | False Negative (FN) | Ride is cancelled & system does NOT intervene | -$20 | Lost booking revenue + driver idle time + customer dissatisfaction |
 
-The cost asymmetry is **3:1** (net TP benefit $15 vs FP cost $5), so catching one cancellation is worth tolerating up to 3 false alarms. This makes **recall the primary metric** — the goal is to catch as many cancellations as possible while keeping false alarms manageable.
+A missing a cancellation is 4× more costly than a false alarm!
 
-### Recall: deriving the target from business constraints
+### Primary objective
 
-**Step 1 — Lower bound from financial targets**
-
-Working assumption: precision = 50% (for every cancellation caught, we generate one false alarm). Net savings per TP caught:
+What stakeholders care about is to maximize the annual aggregate profit:
 
 ```
-Net savings per TP = $15 (TP benefit) - $5 (one FP generated at 50% precision) = $10 per TP
+Annual profit = TP × $15 - FP × $5
 ```
 
-The financial team sets two targets:
+It's important to remember that this formula only evaluates what the model did, not what it failed to do so FNs are not counted here
 
-Minimum viability ($50K/year):
-```
-TP × 10 ≥ 50.000 → TP ≥ 5.000 → Recall ≥ 5.000 / 48.000 = 10%
-```
+### Per-prediction expected value
 
-Target ROI ($100K/year):
-```
-TP × 10 ≥ 100.000 → TP ≥ 10.000 → Recall ≥ 10.000 / 48.000 = 21%
-```
-
-**Step 2 — Upper bound from operational capacity**
-
-The system can handle 50.000 interventions/year. At 50% precision (FP = TP), total interventions = 2 × TP:
+In every single ride with a predicted cancellation probability P. I compare the expected value of both actions:
 
 ```
-2 × TP ≤ 50.000 → TP ≤ 25.000 → Recall ≤ 25.000 / 48.000 = 52%
+EV(intervene)     = P × (+$15) + (1 - P) × (-$5) = 20P - 5
+EV(don't intervene) = P × (-$20) + (1 - P) × ($0) = -20P
+
+Intervene when EV(intervene) > EV(don't intervene):
+20P - 5 > -20P
+40P > 5 -> P > 0.125
 ```
+So I am interested in an intervention on any ride with if P(cancellation) > 12.5%
 
-**Step 3 — Choose recall target**
+### Operational capacity constrain & its strategy
 
-| Constraint | Recall bound | Reason |
-|------------|-------------|--------|
-| Minimum viability | ≥ 10% | Below this, savings don't cover costs |
-| Target ROI | ≥ 21% | Minimum to hit the $100K business target |
-| Operational capacity | ≤ 52% | Max catchable cancellations within 50K intervention budget |
+The Ops team said that the system can handle a maximum of 50K interventions/year and based on the historical data it's clear that I should expect more. Also the deployment would be in real time so a top-k global ranking is not possible because not all rides are available at once.
 
-Valid window: **21% – 52%**. Choosing **Recall = 40%** as a conservative starting target with headroom on both sides.
+I would then sort all predicted probabilities on a validation set and find the score percentile that corresponds to  the 50Kth intervention. In this case since I ahve 150K rides, the threshold would be 50K / 150K = 33% 
 
-### Precision: sanity check
+### Business constraints to accept (or reject) the trained model
 
-With Recall = 40% and the 50% precision working assumption:
-
-```
-TP = 0.4 × 48.000 = 19.200
-FP = 19.200 (at 50% precision)
-Total interventions = 38.400 → within 50K operational cap ✓
-```
-
-Break-even precision — the minimum precision where every positive prediction has positive expected value:
+**1. System viability — covers annual build + maintenance cost ($50K/year)**
 
 ```
-Precision × $15 - (1 - Precision) × $5 ≥ 0
-15P - 5 + 5P ≥ 0 → 20P ≥ 5 → P ≥ 0.25
+Required TP × $15 ≥ 50.000 (ignoring FP costs, optimistic floor)
+→ TP ≥ 3.334 → Recall ≥ 3.334 / 48.000 = 7%
 ```
 
-50% precision > 25% break-even ✓
-
-### Validation → Precision = 50% and Recall = 40%:
+**2. Target ROI — 10% cancellation reduction goal (see section 1.1)**
 
 ```
-TP = 0.4 × 48.000 = 19.200
-FP = 19.200 (at 50% precision)
-Total interactions = 38.400 → within operational capacity ✓
+10% × 48.000 = 4.800 rides to prevent
+4.800 × $20 revenue = $96.000 target
 
-&
-
-Net savings = 19.200 × 15 - 19.200 × 5 = 288.000 - 96.000 = 192.000 → above target ROI ✓
-
-&
-
-Precision (50%) > break-even precision (25%) ✓
+Required TP × $15 ≥ 96.000 (optimistic floor, FP costs excluded)
+→ TP ≥ 6.400 → Recall ≥ 6.400 / 48.000 = 13%
 ```
+
+> Note: both recall floors assume zero FP costs (best case). FP costs reduce net savings, so the true minimum recall is slightly higher. The 13% floor is the minimum acceptable — not the target.
+
+**3. Break-even EV at top-50K**
+
+At the top-50K cutoff, total EV must be positive:
+```
+Net savings = TP × $15 - FP × $5 ≥ $96.000
+```
+This is computed **offline** on the validation set: simulate the 50K-intervention cutoff (sort by predicted probability, take top 50K), then compute profit from the resulting confusion matrix.
 
 ### Final metrics:
 
-Based on the analysis above I decided to choose metrics that:
+Based on the analysis above, the full set of metrics is:
 
-1. Reflect the cost asymmetry of 3:1
-2. Work for moderated class imbalance
-
-
-| Metric | Value | Reasoning |
-|------------|---------------------|------------------|
-| Recall | ≥ 40% | Derived from the $100K ROI target and operational capacity constraints |
-| Precision | ≥ 50% | Working assumption used throughout the analysis; above 25% break-even |
-| F2-score | ≥ 0.42 | β² = $15/$5 = 3 → β ≈ 1.73, rounded to F2 = 5×P×R / (4P + R); value at P=50%, R=40% |
-| PR-AUC | The best possible | Model comparison metric for imbalanced datasets |
-| Expected profit | TP×$15 - FP×$5 ≥ $100K | Final sanity check: validates the model delivers actual business value |
+| Metric | Role | Value | Reasoning |
+|--------|------|-------|-----------|
+| Decision threshold | Deployment | 12.5% | Bayes-optimal from cost matrix (Elkan 2001): t* = C(FP) / [C(FP) + C(FN) + C(TP)] = 5/40 |
+| Recall | Model acceptance | ≥ 13% | Minimum to meet $96K target ROI at top-50K cutoff; derived from 10% reduction goal |
+| F2-score | Model ranking | Maximise | β² = C(FN)/C(FP) = $20/$5 = 4 → exactly F2; weights recall 4× more than precision |
+| PR-AUC | Model ranking | Maximise | Robust comparison metric for imbalanced datasets |
+| Expected profit | Final validation | TP×$15 - FP×$5 ≥ $96K | Computed offline at 50K-intervention simulation on validation set; confirms model meets business target before deployment |
 
 ## 1.6 Is the performance measure aligned with the business objective?
 
-Yes, the selected performance measures are aligned with the business objective and cost structure of the cancellation prediction problem.
+Yes. The metrics follow directly from the cost matrix and business goals:
 
-Given the asymmetric cost of errors, where recall is weighted four times more heavily than precision, I need to use of the F2-score as the primary optimization metric so I can reflect the higher business impact of missed cancellations.
+- The **per-prediction EV comparison** (EV(intervene) vs. EV(don't intervene)) shows that intervening is rational whenever P(cancellation) > 12.5%. The FN cost of $20 is the key input here — it is what makes the threshold so low, because doing nothing on a likely cancellation is expensive.
+- The **annual aggregate profit** (TP × $15 − FP × $5) is the deployment-time measure of business value. FNs do not appear in this formula because the model never touched those rides — their cost is a baseline loss that exists with or without the model, not an additional cost created by the model.
+- The **recall ≥ 13%** acceptance criterion ties directly to the 10% cancellation reduction business goal from section 1.1, ensuring the model is worth deploying before it ever goes live.
+- The **F2-score** (β² = C(FN)/C(FP) = 4) directly reflects the 4:1 cost asymmetry, making it the right ranking metric during model selection.
+- **PR-AUC** handles class imbalance robustly and is used alongside F2 for model comparison.
 
-Recall is constrained to be at least 70% to ensure that the majority of cancellation events are detected and precision is constrained to be at least 60% to limit unnecessary intervention and extra operational costs.
-
-Since the dataset is imbalanced, the Precision–Recall (PR) curve is used for model comparison.
-
-Expected profit is used as a post-selection validation metric to make sure that these metrics have a translation into business value.
+The two EV concepts serve different purposes and should never be confused: the per-prediction formula decides the threshold; the aggregate formula validates business impact.
 
 ## 1.7 What would be the minimum performance needed to reach the business objective?
 
-| Metric | Minimum Threshold | Rationale |
-|--------|-------------------|-----------|
-| F2-Score | ≥ 0.55 | Calculated from minimum P=50%, R=60% |
-| Recall | 60% | From ROI analysis |
-| Precision | 50% | From break-even analysis |
-| F1-Score | 0.55 | Baseline for balanced performance |
-| AUC-ROC | 0.32 | Extracted from ositive class proportion |
-
+| Metric | Minimum | Role | Rationale |
+|--------|---------|------|-----------|
+| Recall | ≥ 13% | Model acceptance gate | TP ≥ 6,400 needed to reach $96K target ROI (10% cancellation reduction goal; see §1.1) |
+| Decision threshold | 12.5% | Deployment setting | Bayes-optimal; derived analytically from cost matrix — not a tunable minimum |
+| Annual profit | ≥ $96K at top-50K | Final validation | TP × $15 − FP × $5 computed from confusion matrix at 50K cutoff |
+| F2-score | Maximise | Model ranking | β² = C(FN)/C(FP) = 4; used to rank candidate models — no fixed floor |
+| PR-AUC | Maximise | Model ranking | Robust to class imbalance; used alongside F2 to compare models |
 
 ## 1.8 What are comparable problems? Can you reuse experience or tools?
 
