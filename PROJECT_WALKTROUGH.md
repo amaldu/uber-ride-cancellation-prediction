@@ -10,7 +10,7 @@ This documents explains the step-by-step logic and workflow following CRISP-DM a
 - [Problem Framing](#problem-framing)
   - [1.1 Defininition of the objective in business terms](#11-defininition-of-the-objective-in-business-terms)
   - [1.2 How will the solution be used?](#12-how-will-the-solution-be-used)
-  - [1.3 What are the current solutions/workarounds (if any)?](#13-what-are-the-current-solutionsworkarounds-if-any)
+  - [1.3 What are the current solutions/workarounds (if any)? There are none](#13-what-are-the-current-solutionsworkarounds-if-any-there-are-none)
   - [1.4 How should the problem be framed](#14-how-should-the-problem-be-framed)
   - [1.5 How should performance be measured?](#15-how-should-performance-be-measured)
     - [Primary objective](#primary-objective)
@@ -18,60 +18,69 @@ This documents explains the step-by-step logic and workflow following CRISP-DM a
     - [Operational capacity constrain \& its strategy](#operational-capacity-constrain--its-strategy)
     - [Business constraints to accept (or reject) the trained model](#business-constraints-to-accept-or-reject-the-trained-model)
     - [Final metrics:](#final-metrics)
-  - [1.6 Is the performance measure aligned with the business objective?](#16-is-the-performance-measure-aligned-with-the-business-objective)
-  - [1.7 What would be the minimum performance needed to reach the business objective?](#17-what-would-be-the-minimum-performance-needed-to-reach-the-business-objective)
-  - [1.8 What are comparable problems? Can you reuse experience or tools?](#18-what-are-comparable-problems-can-you-reuse-experience-or-tools)
-  - [1.9 Is human expertise available?](#19-is-human-expertise-available)
-  - [1.10 How would you solve the problem manually?](#110-how-would-you-solve-the-problem-manually)
-  - [1.11 List the assumptions made so far](#111-list-the-assumptions-made-so-far)
-  - [1.12 Verify assumptions if possible](#112-verify-assumptions-if-possible)
+  - [1.6 What are comparable problems? Can you reuse experience or tools?](#16-what-are-comparable-problems-can-you-reuse-experience-or-tools)
+  - [1.7 Is human expertise available?](#17-is-human-expertise-available)
+  - [1.8 How would you solve the problem manually?](#18-how-would-you-solve-the-problem-manually)
+  - [1.9 List the assumptions made so far. Verify assumptions if possible](#19-list-the-assumptions-made-so-far-verify-assumptions-if-possible)
 - [2. Get the Data](#2-get-the-data)
   - [2.1 List the data](#21-list-the-data)
-  - [2.2 Origin of the dataset](#22-origin-of-the-dataset)
-  - [2.3 Storage requirements for the dataset:](#23-storage-requirements-for-the-dataset)
-  - [2.4 Check legal obligations](#24-check-legal-obligations)
-  - [2.5 Access authorizations](#25-access-authorizations)
-  - [2.6 Data ingestion and overview](#26-data-ingestion-and-overview)
-  - [2.7 Format of the data](#27-format-of-the-data)
-  - [2.8 Sensitive data analysis (PPI):](#28-sensitive-data-analysis-ppi)
+  - [2.2 Storage requirements for the dataset:](#22-storage-requirements-for-the-dataset)
+  - [2.3 Check legal obligations](#23-check-legal-obligations)
+  - [2.4 Access authorizations](#24-access-authorizations)
+  - [2.5 Sensitive data analysis (PPI):](#25-sensitive-data-analysis-ppi)
 - [3. EDA insights](#3-eda-insights)
   - [3.1 Size and type of data](#31-size-and-type-of-data)
   - [3.2 Cleaning and preprocessing steps](#32-cleaning-and-preprocessing-steps)
-    - [3.2.1 Data Leakage Analysis](#321-data-leakage-analysis)
-      - [Resulting dataset with data types optimized](#resulting-dataset-with-data-types-optimized)
   - [3.3 Train/test split strategy](#33-traintest-split-strategy)
-  - [Basic Analysis](#basic-analysis)
-  - [Univariate Analysis](#univariate-analysis)
-    - [TODO - Is there a relationship between customers booking more than once and cancelling? Same vehicle/location each time? Are repeat-bookers more likely to cancel?](#todo---is-there-a-relationship-between-customers-booking-more-than-once-and-cancelling-same-vehiclelocation-each-time-are-repeat-bookers-more-likely-to-cancel)
-    - [TODO - No description of vehicle types in the dataset. Understanding their characteristics (size, price tier) could reveal patterns.](#todo---no-description-of-vehicle-types-in-the-dataset-understanding-their-characteristics-size-price-tier-could-reveal-patterns)
-    - [TODO - Find geographical info to compute actual distances and check if pickup == drop.](#todo---find-geographical-info-to-compute-actual-distances-and-check-if-pickup--drop)
-  - [Bivariate Analysis (Feature vs Target)](#bivariate-analysis-feature-vs-target)
-    - [Engineered features](#engineered-features)
-- [4. Multivariate EDA](#4-multivariate-eda)
-  - [Analyses Performed](#analyses-performed)
-  - [Key Findings](#key-findings)
-    - [Missingness is not confounded](#missingness-is-not-confounded)
-    - [Feature redundancy resolved](#feature-redundancy-resolved)
-    - [Correlation structure](#correlation-structure)
-  - [Final Feature Set for Modeling](#final-feature-set-for-modeling)
-  - [Encoding Recommendations](#encoding-recommendations)
-  - [Realistic Expectations](#realistic-expectations)
-  - [Deferred to Modeling Phase](#deferred-to-modeling-phase)
-- [5. Feature Engineering](#5-feature-engineering)
-  - [Pipeline Architecture](#pipeline-architecture)
-    - [Logistic Regression Pipeline](#logistic-regression-pipeline)
-    - [Tree Models Pipeline](#tree-models-pipeline)
-  - [Key Design Decisions](#key-design-decisions)
-  - [Artifacts Saved](#artifacts-saved)
-
+  - [3.4 Conclusions of the EDA](#34-conclusions-of-the-eda)
+    - [Temporal features](#temporal-features)
+    - [Identifier columns](#identifier-columns)
+    - [vehicle\_type](#vehicle_type)
+    - [pickup\_location and drop\_location](#pickup_location-and-drop_location)
+    - [Route interaction (pickup × drop)](#route-interaction-pickup--drop)
+    - [avg\_vtat](#avg_vtat)
+    - [Missingness mechanism](#missingness-mechanism)
+    - [Deterministic rules](#deterministic-rules)
+- [4. Pipeline Architecture](#4-pipeline-architecture)
+    - [Pipeline 1: Logistic Regression](#pipeline-1-logistic-regression)
+    - [Pipeline 2: LightGBM or XGBoost](#pipeline-2-lightgbm-or-xgboost)
+  - [4.1 Modelling strategy options](#41-modelling-strategy-options)
+  - [4.2 Baseline](#42-baseline)
+  - [4.3 Class imbalance](#43-class-imbalance)
+  - [4.4 Calibration](#44-calibration)
+  - [4.5 Cross-validation strategy](#45-cross-validation-strategy)
+  - [4.6 Feature availability at inference](#46-feature-availability-at-inference)
+- [5. Model Tuning](#5-model-tuning)
+  - [5.1 Search strategy](#51-search-strategy)
+  - [5.2 Hyperparameter ranges](#52-hyperparameter-ranges)
+  - [5.3 Reproducibility](#53-reproducibility)
+  - [5.4 Model selection rule](#54-model-selection-rule)
+- [6. Evaluation](#6-evaluation)
+  - [6.1 Metrics on the test set](#61-metrics-on-the-test-set)
+  - [6.2 Comparison against baselines](#62-comparison-against-baselines)
+  - [6.3 Error analysis](#63-error-analysis)
+  - [6.4 Subgroup performance](#64-subgroup-performance)
+  - [6.5 Stability of the profit estimate](#65-stability-of-the-profit-estimate)
+  - [6.6 Sanity checks before declaring the model done](#66-sanity-checks-before-declaring-the-model-done)
+- [7. Deployment](#7-deployment)
+  - [7.1 Serving architecture](#71-serving-architecture)
+  - [7.2 Feature availability at inference](#72-feature-availability-at-inference)
+  - [7.3 Rollout strategy](#73-rollout-strategy)
+  - [7.4 Rollback criteria](#74-rollback-criteria)
+  - [7.5 Causal uplift — open assumption](#75-causal-uplift--open-assumption)
+- [8. Monitoring](#8-monitoring)
+  - [8.1 Health of the data](#81-health-of-the-data)
+  - [8.2 Model performance](#82-model-performance)
+  - [8.3 Business impact](#83-business-impact)
+  - [8.4 Concept drift](#84-concept-drift)
+  - [8.5 Retraining trigger](#85-retraining-trigger)
 ---
 
 # Problem Framing
 ## 1.1 Defininition of the objective in business terms
+Uber offers a booking service in an Indian metropolitan area and provided me with data from all the bookings of 2024. I identified that the dataset contains 170,000 bookings of which the 32% never reached completion status, that includes different cancellation type based on reason of cancellation or lack of driver available.
 
-Uber offers a booking service in an Indian metropolitan area and provided me with data from all the bookings of 2024. I identified that the dataset contains 150,000 bookings of which the 32% never reached completion status, that includes different cancellation type based on reason of cancellation or lack of driver available. 
-
-This means almos 1 cancellation for every 3 rides.  
+**[After EDA]** The dataset actually contains 150.000 rows. This means almost 1 cancellation for every 3 rides
 
 In terms of business impact, I can think of the following areas:
 
@@ -83,25 +92,19 @@ In terms of business impact, I can think of the following areas:
 2. Operational impact:
    1. Imbalance in supply & demand. While drivers are booked and removed from the pool, this can artificially increase the price of the available services and potentially damaging the image of the company
    2. Driver insatisfaction if the customer is cancelling their rides too often
-   
+
 Let's imagine that Uber wants to reduce the cancellation rate by 10%, this means 3.700 more rides completed and almost 75000$ recovered so building a predictive model that identifies bookings with high cancellation risk at the time of booking could help achieving it.
 
 ## 1.2 How will the solution be used?
 
 The model will be deployed as a real-time prediction system integrated into Uber's booking workflow so when a customer requests a ride, the model will score the cancellation probability.
-
 This will help other departments of the company to develop and implement long-term fixes like:
-
 - Increase customer engagement on high-risk rides by sending booking confirmation messages, provide more frequent ETA updates, or offering loyalty points
-  
 - Optimization of the algorithm for driver allocation, if driver rating is a strong indicator we can redistribute or prioritize better drivers more often
 
 **[After EDA]** Waiting time is a strong cancellation indicator so a good idea would be to redistribute drivers to keep a low waiting time in every area
 
-
-## 1.3 What are the current solutions/workarounds (if any)?
-
-There are none
+## 1.3 What are the current solutions/workarounds (if any)? There are none
 
 ## 1.4 How should the problem be framed
 
@@ -124,14 +127,14 @@ After having a chat with Product and Ops teams I define a cost matrix:
 | True Negative (TN) | Ride is NOT cancelled & system does NOT intervene | $0 | Ride completes normally, no model contribution |
 | False Negative (FN) | Ride is cancelled & system does NOT intervene | -$20 | Lost booking revenue + driver idle time + customer dissatisfaction |
 
-A missing a cancellation is 4× more costly than a false alarm!
+A missing a cancellation is 4x more costly than a false alarm!
 
 ### Primary objective
 
 What stakeholders care about is to maximize the annual aggregate profit:
 
 ```
-Annual profit = TP × $15 - FP × $5
+Annual profit = TP x $15 - FP x $5
 ```
 
 It's important to remember that this formula only evaluates what the model did, not what it failed to do so FNs are not counted here
@@ -141,8 +144,8 @@ It's important to remember that this formula only evaluates what the model did, 
 In every single ride with a predicted cancellation probability P. I compare the expected value of both actions:
 
 ```
-EV(intervene)     = P × (+$15) + (1 - P) × (-$5) = 20P - 5
-EV(don't intervene) = P × (-$20) + (1 - P) × ($0) = -20P
+EV(intervene) = P x (+$15) + (1 - P) x (-$5) = 20P - 5
+EV(don't intervene) = P x (-$20) + (1 - P) x ($0) = -20P
 
 Intervene when EV(intervene) > EV(don't intervene):
 20P - 5 > -20P
@@ -152,90 +155,70 @@ So I am interested in an intervention on any ride with if P(cancellation) > 12.5
 
 ### Operational capacity constrain & its strategy
 
-The Ops team said that the system can handle a maximum of 50K interventions/year and based on the historical data it's clear that I should expect more. Also the deployment would be in real time so a top-k global ranking is not possible because not all rides are available at once.
+The Ops team said that the system can handle a maximum of 70K interventions/year and based on the historical data it's clear that I should expect more. Also the deployment would be in real time so a top-k global ranking is not possible because not all rides are available at once
 
-I would then sort all predicted probabilities on a validation set and find the score percentile that corresponds to  the 50Kth intervention. In this case since I ahve 150K rides, the threshold would be 50K / 150K = 33% 
+To calibrate the deployment threshold, I sort the validation set by predicted probability from highest to lowest and find the predicted score at the 70Kth position, that will be the model probability score I will use at serving time. As a rough guide 70K / 150K = 46.7% of rides would be flagged
 
 ### Business constraints to accept (or reject) the trained model
 
-**1. System viability — covers annual build + maintenance cost ($50K/year)**
+I have oversimplified the calculations to see the min recalls, not the target because FP = 0 until I train the model
+
+1. System viability (model building + maintenance cost: $50K/year)
 
 ```
-Required TP × $15 ≥ 50.000 (ignoring FP costs, optimistic floor)
-→ TP ≥ 3.334 → Recall ≥ 3.334 / 48.000 = 7%
+Required TP x $15 >= 50.000 -> TP >= 3.334
+Recall >= 3.334 / 48.000 = 7%
 ```
 
-**2. Target ROI — 10% cancellation reduction goal (see section 1.1)**
+2. Target ROI (defined above 10% cancellation reduction)
 
 ```
-10% × 48.000 = 4.800 rides to prevent
-4.800 × $20 revenue = $96.000 target
+0.1 x 48.000 = 4.800 rides to prevent
+4.800 x $20 revenue = $96.000 target
 
-Required TP × $15 ≥ 96.000 (optimistic floor, FP costs excluded)
-→ TP ≥ 6.400 → Recall ≥ 6.400 / 48.000 = 13%
+Required TP x $15 >= 96.000 TP >= 6.400
+Recall >= 6.400 / 48.000 = 13%
 ```
 
-> Note: both recall floors assume zero FP costs (best case). FP costs reduce net savings, so the true minimum recall is slightly higher. The 13% floor is the minimum acceptable — not the target.
-
-**3. Break-even EV at top-50K**
-
-At the top-50K cutoff, total EV must be positive:
+3. Min precision
 ```
-Net savings = TP × $15 - FP × $5 ≥ $96.000
+P x $15 - (1 - P) x $5 >= 0 -> 20P >= 5
+Precision >= 25%
 ```
-This is computed **offline** on the validation set: simulate the 50K-intervention cutoff (sort by predicted probability, take top 50K), then compute profit from the resulting confusion matrix.
+
+4. Final Expected profit
+```
+Net profit = TP x $15 - FP x $5 >= $96.000
+```
 
 ### Final metrics:
 
-Based on the analysis above, the full set of metrics is:
+Based on the analysis above, the full set of (business and technical) metrics is:
 
-| Metric | Role | Value | Reasoning |
-|--------|------|-------|-----------|
-| Decision threshold | Deployment | 12.5% | Bayes-optimal from cost matrix (Elkan 2001): t* = C(FP) / [C(FP) + C(FN) + C(TP)] = 5/40 |
-| Recall | Model acceptance | ≥ 13% | Minimum to meet $96K target ROI at top-50K cutoff; derived from 10% reduction goal |
-| F2-score | Model ranking | Maximise | β² = C(FN)/C(FP) = $20/$5 = 4 → exactly F2; weights recall 4× more than precision |
-| PR-AUC | Model ranking | Maximise | Robust comparison metric for imbalanced datasets |
-| Expected profit | Final validation | TP×$15 - FP×$5 ≥ $96K | Computed offline at 50K-intervention simulation on validation set; confirms model meets business target before deployment |
+1. Decision threshold = 12.5%
+2. Recall >= 13%
+3. Precision >= 25%
+4. F2-score to model ranking - > β² = FN/FP = $20/$5 = 4 weights recall 4x over precision
+5. PR-AUC to compare models because I have class imbalance
+6. Expected profit = TP x $15 - FP x $5 >= $96.000
 
-## 1.6 Is the performance measure aligned with the business objective?
-
-Yes. The metrics follow directly from the cost matrix and business goals:
-
-- The **per-prediction EV comparison** (EV(intervene) vs. EV(don't intervene)) shows that intervening is rational whenever P(cancellation) > 12.5%. The FN cost of $20 is the key input here — it is what makes the threshold so low, because doing nothing on a likely cancellation is expensive.
-- The **annual aggregate profit** (TP × $15 − FP × $5) is the deployment-time measure of business value. FNs do not appear in this formula because the model never touched those rides — their cost is a baseline loss that exists with or without the model, not an additional cost created by the model.
-- The **recall ≥ 13%** acceptance criterion ties directly to the 10% cancellation reduction business goal from section 1.1, ensuring the model is worth deploying before it ever goes live.
-- The **F2-score** (β² = C(FN)/C(FP) = 4) directly reflects the 4:1 cost asymmetry, making it the right ranking metric during model selection.
-- **PR-AUC** handles class imbalance robustly and is used alongside F2 for model comparison.
-
-The two EV concepts serve different purposes and should never be confused: the per-prediction formula decides the threshold; the aggregate formula validates business impact.
-
-## 1.7 What would be the minimum performance needed to reach the business objective?
-
-| Metric | Minimum | Role | Rationale |
-|--------|---------|------|-----------|
-| Recall | ≥ 13% | Model acceptance gate | TP ≥ 6,400 needed to reach $96K target ROI (10% cancellation reduction goal; see §1.1) |
-| Decision threshold | 12.5% | Deployment setting | Bayes-optimal; derived analytically from cost matrix — not a tunable minimum |
-| Annual profit | ≥ $96K at top-50K | Final validation | TP × $15 − FP × $5 computed from confusion matrix at 50K cutoff |
-| F2-score | Maximise | Model ranking | β² = C(FN)/C(FP) = 4; used to rank candidate models — no fixed floor |
-| PR-AUC | Maximise | Model ranking | Robust to class imbalance; used alongside F2 to compare models |
-
-## 1.8 What are comparable problems? Can you reuse experience or tools?
+## 1.6 What are comparable problems? Can you reuse experience or tools?
 
 No because it's the first project in this company :)
 
-## 1.9 Is human expertise available?
+## 1.7 Is human expertise available?
 
-There should be but this is just a ML checklist so I'm going to guess a lot: 
+There should be but this is just a ML checklist so I'm going to guess a lot:
 
 The dataset provides domain knowledge, including documented cancellation reasons (wrong address, driver-related issues), vehicle-type performance metrics, and observable patterns related to payment methods.
 
 From the company I would probably be able to obtain general industry knowledge of ride-sharing operations like common cancellation triggers in transportation services, established operational best practices, and typical customer behavior patterns in on-demand mobility platforms, etc.
 
-Data science expertise is also available in the topics of binary classification modeling, imbalanced datasets, engineering temporal and behavioral features, etc. 
+Data science expertise is also available in the topics of binary classification modeling, imbalanced datasets, engineering temporal and behavioral features, etc.
 
 However, certain knowledge gaps that come to my mind would need to be addressed like Uber operational constraints, regional factors affecting rides, clear definitions of peak hours and the impact of surge pricing...
 
-## 1.10 How would you solve the problem manually?
+## 1.8 How would you solve the problem manually?
 
 Heuristic approach with rules I can think of:
 
@@ -264,209 +247,92 @@ Heuristic approach with rules I can think of:
 
 But this approach has limitations because its rules are static and they cannot capture complext interactions
 
+**[After EDA]** Most of these heuristic rules could not be validated but there are three deterministic patterns that work as hard rules inside a two-stage system:
+- `avg_vtat ≤ 2.9 min` → never cancels
+- `avg_vtat > 15 min` → always cancels (likely a system timeout)
+- `vtat_missing = 1` → always cancels (vehicle never arrived)
 
-## 1.11 List the assumptions made so far
+My approach would be to flag these three cases deterministically and apply the ML model only on the remaining rides
+
+## 1.9 List the assumptions made so far. Verify assumptions if possible
+
+**[After EDA]** Assumptions marked as **confirmed**, **refuted** & **unverified** (could not be tested)
 
 Data Assumptions:
-1. The 2024 dataset is representative of typical booking patterns
-2. Cancellation reasons are accurately recorded
-3. All relevant features are captured in the dataset
-4. Patterns in 2024 will persist into future periods
-5. Features available at booking time don't include post-booking information
+1. The 2024 dataset is representative of typical booking patterns **refuted** 31st of Dec is missing
+2. Cancellation reasons are accurately recorded **unverified** dataset is from kaggle
+3. All relevant data is captured in the dataset **refuted** columns and rows don't match the document
+4. Patterns in 2024 will persist into future periods **unverified** dataset is from kaggle
+5. Features available at booking time don't include post-booking information **refuted** and dropped
+6. Class distribution reflects realistic cancellation rate **unverified** dataset is from kaggle
+7. Target variable is correctly defined and labelled **refuted** more labels than needed, collapsed into binary
+8. Grouping `Incomplete` rides with `Completed` as class 0 is a valid modelling choice **unverified** driver no-shows arguably belong on the cancelled side, would need a product/ops conversation to confirm
 
 Business Assumptions:
-1. Proactive measures can actually prevent cancellations
-2. Intervention costs are lower than cancellation costs
-3. Customers will respond positively to interventions
+1. Proactive measures can actually prevent cancellations **unverified** this project does not contain modelling phase yet
+2. Intervention costs are lower than cancellation costs **confirmed**
+3. Customers will respond positively to interventions **unverified** dataset is from kaggle
 
 Technical Assumptions:
-1.  All features used in training will be available at inference time
-2.  Model can score bookings within acceptable time (<100ms)
-3.  Deployment infrastructure exists or can be built
+1.  All features used in training will be available at inference time **unverified** dataset is from kaggle
+2.  Model can score bookings within acceptable time (<100ms) **unverified** but any ride booking service can hire me and change this
+3.  Deployment infrastructure exists or can be built **unverified** but any ride booking service can hire me and change this
 
 Model Assumptions:
-1.  Some degree of separability exists between cancelled and completed rides
-2.  Available features contain signal for prediction
-3.  Model trained on historical data will generalize to new bookings
-
-## 1.12 Verify assumptions if possible
-
-At this stage, I assume that the dataset contains all relevant features required to model the target variable, and that no critical predictive information is systematically missing.
-
-Since this is the first version of the project those will be the project I will only verify the following assumptions in the `02_assumptions.ipynb` notebook:
-
-| Assumption | Verification Method | Status | Action taken |
-|------------|---------------------|--------|--------------|
-| Data completeness | Number of columns and rows match the document | Amount of columns and rows is different | Updated document |
-| Time coverage | The dataset represents data from the whole year 2024 | 31st of December is missing | Contact Ops team to obtain the data |
-| Class balance | Verify that the imbalance is 25% | Verified: based on the criteria used to label cancellations, the final value is 32% cancellation rate | None |
-| Valid target | Target column exists and it's in the format that the business needs to predict | More labels than needed | Define what is cancelled and classify the labels into 2 categories |
-| No obvious data leakage | Post-cancellation columns are removed | Verified | 7 columns have to be removed by leakage or redundance |
-
-These assumptions require business input and post-deplopyment monitorization that can be verified after the model is deployed: 
-
-| Assumption | Verification method |
-|------------|---------------------|
-| Intervention effectiveness | A/B test results or pilot data |
-| Cost structure | Finance or Ops team input |
-| Operational capacity | Operations team assessment |
-| Pattern stationarity | Model performance drift detection |
-| Feature availability | Data pipeline monitoring |
-| Customer response | Intervention success rate tracking |
-
+1.  Some degree of separability exists between cancelled and completed rides **confirmed**
+2.  Available features contain signal for prediction **confirmed**
+3.  Model trained on historical data will generalize to new bookings **unverified** this project does not contain modelling phase yet
 
 # 2. Get the Data
-## 2.1 List the data 
+## 2.1 List the data
 
-**Characteristics of the available Data**:
-- **150.000 booking records** from 2024
-- **21 columns** covering all required feature categories (according to what is assumed in the previous section)
-- **Full year coverage** with daily granularity
+The dataset used is the Uber Ride Analytics Dashboard downloaded from Kaggle
 
-**Data Sufficiency Assessment**:
-- The sample size is adequate for ML modeling 
-- The positive class (cancellations) has sufficient examples (32% of that class)
-- Temporal coverage spans full year with time-stamp granularity
+URL: https://www.kaggle.com/datasets/yashdevladdha/uber-ride-analytics-dashboard
 
-## 2.2 Origin of the dataset
+## 2.2 Storage requirements for the dataset:
 
-The dataset used is the **Uber Ride Analytics Dashboard** downloaded from Kaggle
-
-URL: https://www.kaggle.com/datasets/yashdevladdha/uber-ride-analytics-dashboard 
-
-There are two other files:
-
-- `Uber.pbix` - Power BI dashboard file
-- `Dashboard.gif` - Visualization preview
-
-## 2.3 Storage requirements for the dataset:
-
-**Storage Requirements**:
-
-- Processed datasets: ~30-50 MB 
+Storage Requirements:
+- Processed datasets: ~30-50 MB
 - Model artifacts: to be defined
 - Notebooks & outputs: to be defined
-- **Total Workspace**: to be defined
+- Total Workspace: to be defined
 
-**Memory Requirements**:
-- DataFrame in memory: 111 MB 
+Memory Requirements:
+- DataFrame in memory: 111 MB
 - Training with full dataset: to be defined
 
+## 2.3 Check legal obligations
 
-## 2.4 Check legal obligations
-
-**Legal Assessment**:
-- Data License: `CC BY-SA 4.0`
+- Data License: CC BY-SA 4.0
 - Personal Data: Customer/Driver IDs are anonymized
-- Commercial Use: It is allowed to:
-    - Share — copy and redistribute the material in any medium or format for any purpose, even commercially.
-    - Adapt — remix, transform, and build upon the material for any purpose, even commercially. 
 - GDPR/Privacy: No personally identifiable information (PII)
-- About the creator: [Yash Dev Laddha](https://www.kaggle.com/yashdevladdha)
 
+## 2.4 Access authorizations
+The dataset comes from Kaggle so it's free to use via API access
 
-**Data Privacy Compliance**:
-- No real names or contact information
-- Location data is categorical 
-- Booking IDs are synthetic identifiers
-- No sensitive financial details (only payment method type)
-
-## 2.5 Access authorizations
-
-**Access Requirements**:
-
-1. **Kaggle Account**: Required for API access
-2. **API Credentials**: `kaggle.json` file with username and key
-3. **Environment Setup**: 
-   ```bash
-   export KAGGLE_USERNAME="your_username"
-   export KAGGLE_KEY="your_api_key"
-   ```
-
-## 2.6 Data ingestion and overview
-
-The data has been downloaded using the Kaggle API as documented in `notebooks/03_eda.ipynb`
-:
-
-- File location: `uber-analysis/data/raw/ncr_ride_bookings.csv`
-- Download date: As per notebook execution
-- Ingestion: CSV file loads successfully with pandas
-
-## 2.7 Format of the data
-
-| Stage | Format | Purpose |
-|-------|--------|---------|
-| Raw | CSV | Original data preservation |
-| Working | Pandas DataFrame | Analysis and transformation |
-| Processed | Parquet | Efficient storage with types preserved |
-
-## 2.8 Sensitive data analysis (PPI):
-
-The following columns are suspected to contain PII. After performing a quick overview in 03_initial_inspection.ipynb, I can summarize their characteristics and the actions to take:
-
-| Column | Status | Action |
-|--------|-------------|--------|
-| Customer ID | anonymized | Keep as-is |
-| Booking ID | synthetic codes | Keep as-is |
-| Pickup Location | area names | Keep as-is |
-| Drop Location | area names | Keep as-is |
-| Payment Method | type only | Keep as-is |
-
+## 2.5 Sensitive data analysis (PPI):
+There are no sensitive names or contact information, location data or financial details from customers
 
 # 3. EDA insights
 
+The full content of this section can be found in the notebooks 04_univar_eda.ipynb, 05_bivar_eda.ipynb and 06_multivar_eda.ipynb
+
 ## 3.1 Size and type of data
 
-| Attribute | Value |
-|-----------|-------|
-| Total Records | 150.000 |
-| Total Features | 21 columns |
-| Data Type | Tabular (structured) |
-| Temporal Scope | Year 2024 |
-| Geographic Scope | NCR (National Capital Region) |
-| Update Frequency | Static dataset |
+The dataset contains 150.000 rows, 21 columns and covers the range between the 1/1-30/12 and the 29th of February is present.
+The sample size is adequate for ML modeling, the 32% of the rides are cancellations so it's moderately imbalanced (same regime as many churn problems).
 
-```
- #   Column                             Non-Null Count   Dtype  
----  ------                             --------------   -----  
- 0   Date                               150000 non-null  object 
- 1   Time                               150000 non-null  object 
- 2   Booking ID                         150000 non-null  object 
- 3   Booking Status                     150000 non-null  object 
- 4   Customer ID                        150000 non-null  object 
- 5   Vehicle Type                       150000 non-null  object 
- 6   Pickup Location                    150000 non-null  object 
- 7   Drop Location                      150000 non-null  object 
- 8   Avg VTAT                           139500 non-null  float64
- 9   Avg CTAT                           102000 non-null  float64
- 10  Cancelled Rides by Customer        10500 non-null   float64
- 11  Reason for cancelling by Customer  10500 non-null   object 
- 12  Cancelled Rides by Driver          27000 non-null   float64
- 13  Driver Cancellation Reason         27000 non-null   object 
- 14  Incomplete Rides                   9000 non-null    float64
- 15  Incomplete Rides Reason            9000 non-null    object 
- 16  Booking Value                      102000 non-null  float64
- 17  Ride Distance                      102000 non-null  float64
- 18  Driver Ratings                     93000 non-null   float64
- 19  Customer Rating                    93000 non-null   float64
- 20  Payment Method                     102000 non-null  object 
-```
-## 3.2 Cleaning and preprocessing steps 
+## 3.2 Cleaning and preprocessing steps
 
-| Transformation | Columns | Actions | 
-|----------------|---------|---------|
-| snake case | all dataset | remove spaces, lowercase and add underscores \
-| map target | "is_cancelled" | "Completed": 0, "Cancelled by Driver": 1, "No Driver Found": 1, "Cancelled by Customer": 1,"Incomplete": 0 |
-| format Identifiers | "booking_id", "customer_id" | remove quotes |
-| data leakage analysis | all columns | remove potential leaking and redundant columns 
+1. All columns got snake_cased (spaces removed, lowercased, underscores added)
+2. The target column is_cancelled was remapped to binary: Completed and Incomplete = 0, everything else = 1. Note: putting `Incomplete` rides (driver no-show and similar) on the "not cancelled" side is a modelling choice, not obvious. Flagged as an assumption in 1.9
+3. Quotes were stripped from booking_id and customer_id
+4. All columns were reviewed for leakage and redundancy. The list of dropped columns and reason to be dropped:
 
-### 3.2.1 Data Leakage Analysis
-
-The following columns have been removed:
-
-| Column | Reason | 
+| Column | Reason |
 |---------|--------|
-| Cancelled Rides by Driver | Information from the future | 
+| Cancelled Rides by Driver | Information from the future |
 | Cancelled Rides by Customer| Information from the future |
 | Reason for cancelling by Customer | Information from the future
 | Driver Cancellation Reason| Information from the future
@@ -475,190 +341,277 @@ The following columns have been removed:
 | Driver Ratings| Redundant information
 | Customer Rating| Redundant information
 
-#### Resulting dataset with data types optimized 
-```
- 0   date             150000 non-null  datetime64[ns]
- 1   time             150000 non-null  object        
- 2   booking_id       150000 non-null  string        
- 3   customer_id      150000 non-null  string        
- 4   vehicle_type     150000 non-null  category      
- 5   pickup_location  150000 non-null  category      
- 6   drop_location    150000 non-null  category      
- 7   avg_vtat         139500 non-null  float32       
- 8   avg_ctat         102000 non-null  float32       
- 9   booking_value    102000 non-null  float32       
- 10  ride_distance    102000 non-null  float32       
- 11  payment_method   102000 non-null  category      
- 12  is_cancelled     150000 non-null  float32   
- ```    
-
+**[After EDA]** The final dataset contains 150.000 rows ans 13 columns
 
 ## 3.3 Train/test split strategy
 
-The dataset was split using **stratified random sampling** rather than a temporal split. This decision is justified by the EDA findings:
+The data has temporal ordering (date & time) which means it can be used to analyze trends, seasonality, and patterns. The best strategy will probably be a stratified temporal split to avoid data leakage, with a 70/15/15 train/validation/test ratio.
 
-1. **No temporal signal**: Bivariate analysis showed cancellation rate is flat across all temporal dimensions (daily, weekly, monthly, hourly). The 30-day rolling average is nearly constant with no drift.
-2. **No seasonal patterns**: Chi-square tests on weekday, month, week_of_year, and quarter all returned negligible effect sizes (Cramér's V ≈ 0).
-3. **Stationarity confirmed**: The statistical properties of the data do not change over time, so there's no concept drift to simulate.
-
-Stratified sampling ensures balanced class distribution in both sets, which is more important given the 68/32 class imbalance than preserving temporal order that carries no predictive signal.
+**[After EDA]** The cancellation rate is stationary over the year, there's no drift or seasonality in the target. So a random stratified split doesn't leak anything time-dependent and is simpler than a temporal split. Volume has some mild time-of-day structure but the target doesn't, so that's fine
 
 | Set | Percentage | Records | Purpose |
 |-----|------------|---------|---------|
-| Training | 80% | ~120,000 | Model training + cross-validation |
-| Test | 20% | ~30,000 | Final evaluation |
+| Training | 70% | ~105,000 | Model training + cross-validation |
+| Validation | 15% | ~22,500 | Threshold calibration + model selection |
+| Test | 15% | ~22,500 | Final evaluation |
 
-## Basic Analysis
+## 3.4 Conclusions of the EDA
 
-No duplicated rows.
+### Temporal features
+date, hour, weekday, month, is_weekend, quarter are all flat at 32% cancellation. Interesting detail though: ride volume is not flat over the day (clear morning and evening peaks) but the cancellation rate is. So the population changes over the day but behaviour doesn't.
 
-## Univariate Analysis
+### Identifier columns
+booking_id and customer_id were dropped because they are just IDs (high cardinality, no predictive meaning) and they even have duplicates, which is a data-quality issue worth flagging but not useful for modelling
 
-Detailed in `04_univar_eda.ipynb`.
+### vehicle_type
+7 categories all sitting at the overall mean. Same conclusion holds when crossed against pickup/drop locations and against avg_vtat, so this variable carries no signal anywhere
 
-- **Temporal features** (date, time, hour, weekday, month, is_weekend): all weak. Cancellation rate flat at ~32% regardless of time. Cyclical encodings added for completeness.
-- **booking_id / customer_id**: both have duplicates that shouldn't exist. Dropped (identifiers, not features).
-- **vehicle_type**: 7 categories, all ~32% cancellation. Weak predictor.
-- **pickup_location / drop_location**: 176 categories each, faint signal (V ≈ 0.037). Need target encoding.
-- **avg_vtat**: range 2–20 min, 7% missing. **Strongest predictor** — non-linear relationship with cancellation.
-- **Dropped** (`avg_ctat`, `booking_value`, `ride_distance`, `payment_method`): all share 48K NaNs aligned perfectly with cancellations. Data leakage.
-- **is_cancelled** (target): 68/32 split.
+### pickup_location and drop_location
+176 categories each without signal individually, only noise due to their high cardinality. A next step would be to find more geographical information to cluster them
 
-### TODO - Is there a relationship between customers booking more than once and cancelling? Same vehicle/location each time? Are repeat-bookers more likely to cancel?
-### TODO - No description of vehicle types in the dataset. Understanding their characteristics (size, price tier) could reveal patterns.
-### TODO - Find geographical info to compute actual distances and check if pickup == drop.
+### Route interaction (pickup × drop)
+Individually each location is basically noise (Cramer's V around 0.037 with the target), but the concatenation pickup + drop jumps to Cramer's V = 0.4485. That's a huge jump and suggests specific origin-destination pairs do carry signal. Caveat: with so many route combinations the value is probably inflated by high cardinality, so before using it I want to validate with target encoding + CV and compare against a model without routes
 
----
+### avg_vtat
+The dominant predictor with five behavioural zones from 2 minutes to 20 minutes and contains 7% of NaNs. vtat_zone has the same NaNs as avg_vtat (pd.cut leaves them alone), and vtat_missing is the flag that marks exactly those rows. Both derived features are kept because they are the strongest predictors in the whole analysis. In the real world I would conduct a further investigation about the storage of Arrival Times to understand the missing values (MNAR)
 
-## Bivariate Analysis (Feature vs Target)
+### Missingness mechanism
+Used a logistic regression to see if anything other than is_cancelled predicts vtat_missing. Baseline (is_cancelled only) got AUC = 0.866, full model with all other features got AUC = 0.867. So missingness is essentially MNAR driven by the target, no hidden confounders. This means imputing avg_vtat or using vtat_missing as a feature won't pull in bias from other variables
 
-Detailed in `05_bivar_eda.ipynb`.
+### Deterministic rules
+There are basically three "free" rules in the data that don't need a model:
+- if avg_vtat ≤ 2.9 min, the ride never cancels (0% in 7.693 rows)
+- if avg_vtat > 15 min, the ride always cancels (100% in 3.521 rows)
+- if avg_vtat is missing, the ride always cancels (100% in 10.500 rows)
 
-- **All temporal features**: no signal. Every test (chi-square, Fisher's, Spearman) returns negligible effect sizes. Cancellation is time-independent.
-- **vehicle_type**: no signal (V = 0.006).
-- **pickup/drop_location**: faint signal (V ≈ 0.037). Might improve with target encoding or route-level features.
-- **avg_vtat**: dominant predictor with a non-linear, non-monotonic relationship captured by five behavioral zones:
-  - **Instant (2–2.9 min)**: 0% cancellation
-  - **Low (3–5 min)**: ~26%
-  - **Baseline (5.1–11.9 min)**: ~31% (overall mean)
-  - **Dip (12–15 min)**: ~9% — sunk-cost effect
-  - **Timeout (15.1–20 min)**: 100% — system auto-cancellation
-- **vtat_missing**: every row with missing avg_vtat is cancelled (phi = +0.40). Not confounded by other features.
-- `vtat_zone` (χ² = 16,819) is the single most powerful feature in the dataset.
+Together they cover a decent chunk of the dataset and the model only really needs to work on the messy middle
 
-### Engineered features
+# 4. Pipeline Architecture
 
-`vtat_zone`, `is_instant_arrival`, `is_timeout`, `is_long_wait`, `vtat_missing`, `weekday`, `month`, `hour`, `is_night`, `is_rush`, `is_weekend`, cyclical encodings.
+Two separate sklearn pipelines because logistic regression and tree-based models need different handling of avg_vtat (non-monotonic) and locations (high cardinality)
 
+The deterministic rules from section 3.4 are the first wall. If the ride hits one of the three hard rules, skip the model, otherwise continue with two approaches
 
----
+### Pipeline 1: Logistic Regression
+- vtat_zone one-hot encoded
+- vtat_missing used as is
+- route with target encoding and out-of-fold CV
+- numerical features standardised
 
-# 4. Multivariate EDA
+### Pipeline 2: LightGBM or XGBoost
+- avg_vtat as it is with a -1 sentinel for NaN
+- route with target encoding and out-of-fold CV
+- as a secondary variant, try pickup_location and drop_location passed as native categoricals to LightGBM and see if the tree finds the interaction on its own. If it does, I would save the target-encoding step at serving time
 
-Detailed in `06_multivar_eda.ipynb`.
+## 4.1 Modelling strategy options
 
-## Analyses Performed
+Three approaches to experiment with, in order:
 
-1. **Multivariate Missingness Confounding Check**: logistic regression with all non-VTAT features vs is_cancelled-only baseline. AUC lift = 0.002 — missingness is MNAR driven purely by the target with no hidden confounding from feature combinations.
+1. Pure ML solution:
+One model sees all rides. vtat_missing is a feature alongside vtat_zone and locations. The model learns the missing-VTAT pattern on its own. Simplest to build and maintain, and definitely my starting point
 
-2. **Feature Block Effect Sizes**: grouped features into families (temporal_date, temporal_time, locations, vehicle, vtat) and ranked each by cancellation rate swing against the target.
+2. Heuristic + ML solution:
+Rides where vtat_missing = 1 are flagged as cancelled deterministically (22%) and the ML model only runs on the remaining rides (78%). The advantage is that the easy rides are easily classified, the disadvantage is that 2 systems are more complicated to maintain over time than one
 
-3. **Family Redundancy Check**: quantified overlap within the vtat family using η² (avg_vtat ↔ vtat_zone = 0.82) and Cramér's V (vtat_zone ↔ vtat_missing). Determined which representative to keep per model family.
+## 4.2 Baseline
 
-4. **Interaction Effects (pickup × drop → route)**: Cramér's V = 0.45 suggested strong route signal, but this was entirely a cardinality artefact (~30k unique routes, 64% with ≤5 observations). Cross-validated target encoding showed zero lift at all smoothing levels.
+Before training anything fancy I want three reference points so I can tell if the ML layer is actually adding value:
 
-## Key Findings
+1. Majority class baseline: predict "not cancelled" for everything. Recall = 0, profit = $0. Sanity floor
+2. Deterministic rules only (from section 3.4): flag any ride where `avg_vtat > 15` or `vtat_missing = 1` as cancelled. That's ~14k guaranteed TPs on the full dataset (3.521 + 10.500 from section 3.4) before any model runs. Already ~$210k on the profit formula if precision stays high, which is worth verifying on the validation set
+3. Logistic regression with only avg_vtat and vtat_missing: the simplest model that can exist. If LightGBM with 13 features doesn't beat this clearly, something is wrong
 
-### Missingness is not confounded
+The ML models in 4.1 have to beat baseline 2 by a meaningful margin on F2 and expected profit. If they don't, the honest answer is to ship the rules and skip the model
 
-No combination of non-VTAT features predicts avg_vtat missingness beyond is_cancelled alone. Rides cancelled before vehicle assignment have no VTAT recorded — that's the entire mechanism. Imputation or using vtat_missing as a feature won't introduce bias.
+## 4.3 Class imbalance
 
-### Feature redundancy resolved
+32% positive rate is moderate, same regime as churn. I don't plan to use SMOTE or random undersampling because both distort the probability calibration that the 0.125 threshold depends on. Instead:
+- Logistic regression: `class_weight='balanced'`
+- LightGBM / XGBoost: `scale_pos_weight = n_negatives / n_positives ≈ 2.1`
 
-| Feature | Decision | Rationale |
-|---------|----------|-----------|
-| avg_vtat | Keep for trees | Granular continuous signal; trees handle non-linearity |
-| vtat_zone | Keep for LR | Categorical proxy for avg_vtat; avoids log-odds linearity violation (η² = 0.82 with avg_vtat) |
-| vtat_missing | Keep for both | Complementary to avg_vtat; captures early cancellations with 100% precision |
-| pickup_location | Keep for both | Moderate signal (~10% rate swing), no redundancy with other features |
-| drop_location | Keep for both | Same as pickup |
-| is_instant_arrival, is_timeout, is_long_wait | Drop | Deterministic subsets of avg_vtat/vtat_zone |
-| vehicle_type | Drop | 1% rate swing across 7 types — negligible signal |
-| Temporal features | Drop | No signal confirmed across bivariate and multivariate analyses |
-| route | Drop | Zero cross-validated lift; Cramér's V was a cardinality artefact |
+These reweight the loss without touching the sample distribution so calibrated probabilities remain meaningful
 
-### Correlation structure
+## 4.4 Calibration
 
-Feature space is largely orthogonal — family redundancy checks (η², Cramér's V) confirmed no hidden dependencies among the final features.
+The decision threshold (0.125) is derived from expected value, which assumes the predicted score is a real probability. Tree-based models are usually miscalibrated so I will:
+- Fit the model on the training set
+- Fit a calibrator (sigmoid first, isotonic as a second option) on the validation set
+- Check a reliability diagram on the test set
 
-## Final Feature Set for Modeling
+If the reliability curve is already close to the diagonal after class-weighting, I skip the calibrator. Otherwise it becomes part of the serialised pipeline
 
-| Feature | Logistic Regression | Tree Models | Verdict |
-|---------|---------------------|-------------|---------|
-| vtat_zone | ✓ Use | ✗ Skip | Categorical, captures non-linear pattern |
-| avg_vtat | ✗ Skip | ✓ Use | Violates log-odds linearity for LR |
-| vtat_missing | ✓ Use | ✓ Use | Strong signal (100% precision on 22% of cancellations) |
-| pickup_location | ✓ Use | ✓ Use | Moderate signal (~10% rate swing) |
-| drop_location | ✓ Use | ✓ Use | Moderate signal (~10% rate swing) |
+## 4.5 Cross-validation strategy
 
-## Encoding Recommendations
+`customer_id` has duplicates in the data (section 3.4), so the same customer can appear in multiple rows. A plain `StratifiedKFold` would leak customer-level signal from train into validation. The honest choice is `StratifiedGroupKFold` with `groups=customer_id`, 5 folds. Target encoding for `route` is fitted inside each fold to avoid target leakage too
 
-- **Logistic Regression**: frequency-encode locations, use vtat_zone as categorical
-- **Tree Models**: label-encode locations, use avg_vtat with sentinel imputation (-1), set min_samples_leaf ≥ 50
+## 4.6 Feature availability at inference
 
-## Realistic Expectations
-
-- vtat_missing does most of the predictive work (22% of cancellations caught deterministically)
-- Remaining features (avg_vtat/vtat_zone, locations) have weak effect sizes (Cohen's d ≈ 0.16)
-- This is a fundamentally hard prediction problem with limited signal
-
-## Deferred to Modeling Phase
-
-- Influential point analysis (Cook's distance) for logistic regression
+Flagged as unverified in 1.9 and worth revisiting here because the whole real-time story depends on it. `avg_vtat` is described in the dataset as "average time for driver to reach pickup location," which reads as a historical aggregate per area/driver rather than a post-booking measurement. If that reading is correct, it's available at booking time. If it's actually measured per-ride, the feature leaks and the model is useless in production. Before any serious training I would confirm this with whoever owns the data pipeline
 
 ---
 
-# 5. Feature Engineering
+# 5. Model Tuning
 
-Detailed in `07_feature_engineering.ipynb`.
+Hyperparameter search using cross-validated F2-score (β² = 4, weights recall 4x over precision) on the training set, with the `StratifiedGroupKFold` described in 4.5. The operational capacity constraint (70K interventions/year) means the deployment threshold is calibrated separately after training — sort the validation set by predicted probability, find the score at position 70K, and use that as the serving threshold. This decouples model training from threshold selection
 
-## Pipeline Architecture
+## 5.1 Search strategy
 
-Two separate sklearn pipelines were built to handle model-specific feature requirements:
+Optuna with TPE sampler, 50 trials per model, pruning with `MedianPruner`. Random search would also work but Optuna gives me the pruning for free which matters with LightGBM where bad configs take forever. Random state is fixed per trial for reproducibility
 
-### Logistic Regression Pipeline
-- **vtat_zone**: One-hot encoded (5 categories → 5 binary features)
-- **vtat_missing**: Binary passthrough
-- **pickup_location_freq**: Frequency encoded
-- **drop_location_freq**: Frequency encoded
+## 5.2 Hyperparameter ranges
 
-### Tree Models Pipeline
-- **avg_vtat_imputed**: Numeric with sentinel -1 for missing
-- **vtat_missing**: Binary passthrough
-- **pickup_location_encoded**: Label encoded
-- **drop_location_encoded**: Label encoded
+Logistic regression:
+- `C`: log-uniform [1e-3, 1e2]
+- `penalty`: {l1, l2, elasticnet}
+- `l1_ratio`: [0, 1] if elasticnet
+- `solver`: saga (handles all three penalties)
 
-## Key Design Decisions
+LightGBM:
+- `num_leaves`: [15, 255]
+- `max_depth`: [3, 12]
+- `learning_rate`: log-uniform [0.005, 0.2]
+- `min_child_samples`: [5, 200]
+- `reg_alpha`, `reg_lambda`: log-uniform [1e-4, 10]
+- `n_estimators`: up to 2000 with early stopping at 50 rounds on the inner validation fold
 
-1. **No temporal features**: EDA showed zero signal across all temporal dimensions
-2. **No vehicle_type**: Only 1% rate swing, negligible predictive value
-3. **No route feature**: Failed cross-validation with zero lift at all smoothing levels
-4. **Model-specific VTAT handling**: 
-   - Zone encoding for LR (captures non-linearity that violates log-odds assumption)
-   - Numeric for trees (handle non-linearity naturally)
-5. **Sentinel imputation for trees**: -1 allows trees to learn the missing pattern as a split point
-6. **Frequency encoding for LR**: Captures location popularity without introducing high cardinality issues
+XGBoost: similar ranges, adapted to its parameter names
 
-## Artifacts Saved
+## 5.3 Reproducibility
 
-| Artifact | Path | Purpose |
-|----------|------|---------|
-| lr_pipeline.joblib | data/silver/feature_engineering/ | Fitted LR preprocessing pipeline |
-| tree_pipeline.joblib | data/silver/feature_engineering/ | Fitted Tree preprocessing pipeline |
-| X_train_lr.parquet | data/silver/feature_engineering/ | Transformed training features for LR |
-| X_test_lr.parquet | data/silver/feature_engineering/ | Transformed test features for LR |
-| X_train_tree.parquet | data/silver/feature_engineering/ | Transformed training features for trees |
-| X_test_tree.parquet | data/silver/feature_engineering/ | Transformed test features for trees |
-| y_train.parquet | data/silver/feature_engineering/ | Training labels |
-| y_test.parquet | data/silver/feature_engineering/ | Test labels |
-| feature_info.json | data/silver/feature_engineering/ | Feature names metadata |
+- One fixed `random_state = 42` at the top of every notebook / script
+- `requirements.txt` pinned to exact versions
+- MLflow tracks every trial: params, metrics on each fold, confusion matrix at 0.125, threshold at the 70Kth position, git commit hash
+- Dataset version (kaggle download date + md5) logged with every run so I can match a model back to the exact data it saw
+
+## 5.4 Model selection rule
+
+Pick the model with the highest mean F2 across folds, tie-break by expected profit on the validation set at the 70K threshold. Reject any model that fails the business constraints from 1.5 (recall ≥ 13%, precision ≥ 25%, profit ≥ $96K) even if it has the best F2. Not meeting the business constraints means the model should not ship regardless of how pretty the CV numbers are
+
+---
+# 6. Evaluation
+
+Evaluate every trained model against the business constraints defined in section 1.5: PR-AUC, F2-score, recall, precision and expected profit. Everything here is run on the held-out test set, which is only touched once per candidate model
+
+## 6.1 Metrics on the test set
+
+Report at three threshold points:
+- At 0.125 (the EV-derived threshold from 1.5)
+- At the 70K operational threshold (from the validation set ranking)
+- At 0.5 as a reference point
+
+For each: confusion matrix, precision, recall, F2, expected profit
+
+PR-AUC and a calibration plot go alongside so I can tell if the score is a meaningful probability or just a ranking
+
+## 6.2 Comparison against baselines
+
+Side-by-side table vs the three baselines in 4.2 (majority class, deterministic rules only, logreg with only 2 features). The ML model has to beat the deterministic rules on expected profit by enough to justify its maintenance cost ($50K/year from 1.5). If the gap is small, the rules ship and the model doesn't
+
+## 6.3 Error analysis
+
+The bulk of the insight usually comes from looking at *where* the model is wrong, not at aggregate numbers. I would slice errors by:
+- Vehicle type (7 categories)
+- Hour of day and day of week
+- Pickup / drop location top-20 (where most errors concentrate)
+- VTAT zone (including the messy middle between 2.9 and 15 minutes, which is where the model actually has to work)
+
+For each slice: recall, precision and false negative rate. If one slice is systematically worse, either it needs a dedicated feature or a product-side call (e.g. "don't intervene on these rides at all")
+
+## 6.4 Subgroup performance
+
+Even without demographic attributes, pickup location clusters can proxy for neighbourhoods. I would check whether any cluster gets flagged materially more often than the overall rate, and whether precision is stable across clusters. Not a full fairness audit but the honest minimum when the intervention affects service quality
+
+## 6.5 Stability of the profit estimate
+
+Expected profit is a single number that stakeholders will quote. It deserves an uncertainty range. Bootstrap the test set 1000 times, recompute TP, FP and profit each time, report the 95% interval. Something like `$96k profit` becomes `$96k [89k, 103k]` which is much more honest
+
+## 6.6 Sanity checks before declaring the model done
+
+- Reliability diagram close to the diagonal after calibration
+- No single feature dominates gain importance by more than 80% (would be a fragility signal)
+- Removing `route` and retraining: how much profit is lost? Tells me how dependent the model is on that high-cardinality feature
+- Performance on the last month of the test set vs the first month: even though the target is stationary in 2024, this catches any late drift I missed
+
+---
+# 7. Deployment
+
+Hypothetical deployment plan since there's no real Uber integration on the other end. The model scores rides in real time at booking time (I ensured inference < 100ms when validating assumptions). When the predicted probability exceeds the deployment threshold, the ride is flagged for intervention
+
+## 7.1 Serving architecture
+
+- Single serialised artifact containing preprocessing + calibrator + model, loaded once per service instance. This is the main guarantee that training and serving transformations are identical
+- REST endpoint behind the booking service, one request per booking, returns `{probability, flag, model_version}`
+- Feature lookup for aggregated features (like `avg_vtat` per area) from a feature store or a cached table refreshed daily. These are the features that would bite the hardest if computed inconsistently between training and serving
+- Fallback: if the model service times out or returns an error, fall back to the deterministic rules from 3.4. Never block a booking on a model failure
+
+## 7.2 Feature availability at inference
+
+Revisit of the concern raised in 4.6. `avg_vtat`, `pickup_location`, `drop_location`, `vehicle_type`, `time`, `date` all have to be resolvable at the moment the booking request hits the service, before the driver is assigned. If any of them aren't, the model is retrained without that feature or the project doesn't ship. This gets validated with the data pipeline owner before any real training run
+
+## 7.3 Rollout strategy
+
+- Shadow mode first: the model scores every ride but no interventions are triggered. Compare predicted flags against actual outcomes for 2-4 weeks to confirm production performance matches the test set
+- Canary: route 5% of traffic through the active model (interventions triggered), the rest keeps running without interventions. Monitor daily
+- Full rollout only after canary hits the business constraints from 1.5 on live data
+- Blue/green for the model service itself so rollback is instant
+
+## 7.4 Rollback criteria
+
+Automatic rollback triggers:
+- Weekly precision < 20% for 2 consecutive weeks (below the 25% minimum from 1.5 with a small margin)
+- Weekly recall < 10% for 2 consecutive weeks
+- Expected profit negative for any single week
+- Prediction latency p95 > 100ms
+- Error rate on the model endpoint > 1%
+
+Manual rollback for anything else that looks wrong in monitoring. Better to revert to rules-only than serve a broken model
+
+## 7.5 Causal uplift — open assumption
+
+The economics in 1.5 assume that an intervention on a high-risk ride actually reduces the cancellation probability. That's a product assumption, not something this model can prove. Treating it as unverified and out of scope for the current project. The honest way to measure it later would be an A/B test where flagged rides are randomly split into "intervene" vs "hold out," comparing realised cancellation rates. Without that, the $15 TP benefit is an estimate, not a measurement
+
+---
+# 8. Monitoring
+
+Cancellations are labelled within minutes to hours of the booking, so I can monitor true performance on live data without long delays. That's a luxury not every ML problem has and it shapes the whole monitoring plan
+
+## 8.1 Health of the data
+
+Track the `vtat_missing` rate daily because it's where the heuristic part of the hybrid solution could break. Any sudden shift from the 7% observed initially can invalidate the best feature. Track class distribution shifts because that means the population has changed and may trigger retraining
+
+Alerting thresholds:
+- `vtat_missing` rate outside [4%, 12%] for 2 consecutive days → warn
+- `vtat_missing` rate outside [2%, 15%] for any single day → alert
+- Daily cancellation rate outside [25%, 40%] → alert
+
+## 8.2 Model performance
+
+Log predicted probability and actual outcome for every scored ride. Compute PR-AUC, F2-score, precision and recall on a rolling weekly window and compare against training baselines. Check that neither recall nor precision drop under thresholds defined in section 1.5
+
+Alerting thresholds (2 consecutive weeks unless noted):
+- Weekly F2 below 90% of validation F2 → warn
+- Weekly precision below 25% → alert (violates business constraint)
+- Weekly recall below 13% → alert (violates business constraint)
+- Weekly PR-AUC drop greater than 0.05 vs training baseline → warn
+
+## 8.3 Business impact
+
+Most meaningful signal for stakeholders. Track:
+- Weekly interventions vs the 70K/year capacity (≈1.350/week). Overshoot means the threshold needs retuning
+- Monthly expected profit, with bootstrap CI from 6.5 updated monthly
+- Quarterly cumulative profit vs the $96K/year target
+
+## 8.4 Concept drift
+
+Something that surprised me is that the 2024 data was stationary, so drift is the thing most likely to break this model first. Track:
+- Cramér's V between cancellation rate and temporal features (weekday, hour) weekly. Baseline is near zero, any jump above 0.05 means the stationarity assumption is breaking
+- PSI on `vtat_zone` weekly: PSI < 0.1 fine, 0.1–0.25 warn, > 0.25 alert (industry convention)
+- PSI on top-20 pickup and top-20 drop locations weekly, same thresholds
+- `vtat_missing` is already covered by 8.1
+
+## 8.5 Retraining trigger
+
+Section 1.4 mentions daily retraining as a default. That's fine as a starting posture but it should be revisited once the pipeline is live. Concretely:
+- Scheduled daily retraining as the baseline
+- Performance-triggered retraining if any PSI goes critical or any business constraint is violated for 2 consecutive weeks, whichever comes first
+- Every retrain runs through the same evaluation gate as the initial model (section 6.2 baselines, business constraints from 1.5). A retrained model that fails the gate doesn't get promoted, the previous version keeps running
