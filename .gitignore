@@ -10,7 +10,6 @@ build/
 
 # Environments
 .env
-.envrc
 .venv/
 venv/
 .pixi/
@@ -29,4 +28,27 @@ venv/
 Thumbs.db
 
 # Generated data (reproduced by pipeline)
-uber-analysis/grafana/data/*.db
+data/bronze/
+data/silver/
+notebooks/scratch.ipynb
+
+# schemas
+pipeline.puml
+pipeline.png
+
+GUIDELINE.md
+PROJECT_WALKTROUGH_BACKUP.md
+PROJECT_WALKTROUGH_backup.md
+
+# IDE
+.cursor/
+
+# Raw data artefacts (not needed to run the pipeline)
+data/raw/*.parquet
+data/raw/*.pbix
+data/raw/Dasboard.gif
+
+# Intermediate GIF recording files
+pipeline_demo.cast
+pipeline_demo.gif
+dashboard_demo.gif

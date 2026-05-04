@@ -8,3 +8,4 @@ seaborn>=0.13.0
 pyarrow>=13.0.0
 jupyterlab>=4.0.0
 ipykernel>=6.0.0
+plotly>=5.18.0

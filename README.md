@@ -2,13 +2,12 @@
 
 Welcome to my data analysis project on 150,000 Uber bookings from 2024. The goal is to understand why 32% of rides get cancelled, that is 960K dollars/year in lost revenue and ship the findings as a BI Superset dashboard
 
-**This repo contains the data pipeline + dashboard. The END-TO-END problem framing lives here:**
-## **[CASE STUDY](./CASE_STUDY.md)** 
+**This repo contains the data pipeline + dashboard. The END-TO-END problem framing lives here: [CASE STUDY](./CASE_STUDY.md)** 
 A CRISP-DM including decisions & logic on business framing, cost-based metric design, EDA findings, modelling, tuning, evaluation, deployment and monitoring
 
-## Run my project
+![Pipeline and dashboard demo](demo.gif)
 
-![Superset dashboard preview](pipeline.png)
+## Run my project
 
 On the terminal:
 
@@ -26,11 +25,12 @@ python run_analysis.py
 Default credentials are created on first boot:
 - user: admin
 - password: admin
+  
+Every value in the dashboard is computed from the dataset produced in the enrich step, nothing is hardcoded
+
 ```
 raw CSV --> clean --> enrich --> Superset Dashboard
 ```
-Every value in the dashboard is computed from the dataset produced in the enrich step, nothing is hardcoded
-
 
 ## Key Findings on EDA
 
@@ -55,7 +55,8 @@ Every value in the dashboard is computed from the dataset produced in the enrich
 
 ## Tech Stack
 
-- python 3.10+
+- python 3.10+ 
+- SQL
 - pandas, NumPy, PyArrow (Parquet), SciPy, statsmodels, scikit-learn, matplotlib, seaborn, plotly
 - Notebooks run on jupyter & pipeline on python scripts
 - Apache Superset (BI Dashboard) + Docker
