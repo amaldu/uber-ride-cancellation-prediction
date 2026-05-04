@@ -1,11 +1,11 @@
 import numpy as np
-import pandas as pd  # type: ignore[import-untyped]
+import pandas as pd 
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.patches import Patch
-import seaborn as sns  # type: ignore[import-untyped]
-from scipy import stats  # type: ignore[import-untyped]
-from scipy.stats import chi2_contingency, fisher_exact, kruskal  # type: ignore[import-untyped]
+import seaborn as sns 
+from scipy import stats  
+from scipy.stats import chi2_contingency, fisher_exact, kruskal  
 import os
 from scipy.stats import spearmanr
 
@@ -143,7 +143,7 @@ def nominal_vs_binary(df, feature_col, target_col, labels,
 
     plt.show()
 
-    # ── Statistical tests ─────────────────────────────────────────────────
+    # stats tests 
     ct = pd.crosstab(df[feature_col], df[target_col])
     chi2, p, dof, expected = chi2_contingency(ct)
     v = cramers_v(df[feature_col], df[target_col])
@@ -189,7 +189,7 @@ def binary_vs_binary(df, feature_col, target_col,
     c, d = ct.iloc[1]          # feature=1 → (target=0, target=1)
     n = a + b + c + d
 
-    # ── Rates + Wilson CIs ────────────────────────────────────────────
+    #  rates + wilson CIs 
     overall_rate = df[target_col].mean()
     z = 1.96
     rates, ci_los, ci_his = [], [], []
@@ -203,7 +203,7 @@ def binary_vs_binary(df, feature_col, target_col,
         ci_los.append(centre - margin)
         ci_his.append(centre + margin)
 
-    # ── Visual: rate bars + heatmap ───────────────────────────────────
+    #  viz: rate bars + heatmap 
     fig, (ax_bar, ax_heat) = plt.subplots(
         1, 2, figsize=figsize,
         gridspec_kw={"width_ratios": [1, 1.2], "wspace": 0.35},
@@ -258,7 +258,7 @@ def binary_vs_binary(df, feature_col, target_col,
 
     plt.show()
 
-    # ── Statistical tests ─────────────────────────────────────────────
+    #  stats tests 
     odds_ratio, p_fisher = fisher_exact(ct.values)
 
     # Phi via chi-square (avoids large-int overflow)
@@ -266,7 +266,7 @@ def binary_vs_binary(df, feature_col, target_col,
     sign = 1 if (a * d - b * c) >= 0 else -1
     phi = sign * np.sqrt(chi2 / n)
 
-    # Odds-ratio 95% CI (Woolf log method)
+    # odds-ratio 95% CI 
     log_or = np.log(odds_ratio) if odds_ratio > 0 else np.nan
     se = np.sqrt(1.0 / max(a, 1) + 1.0 / max(b, 1)
                  + 1.0 / max(c, 1) + 1.0 / max(d, 1))
@@ -384,7 +384,7 @@ def continuous_vs_binary(df, feature_col, target_col,
     fig, (ax_kde, ax_box, ax_trend) = plt.subplots(
         1, 3, figsize=figsize, constrained_layout=True)
 
-    # ── KDE ───────────────────────────────────────────────────────────
+    #  KDE 
     for vals, label, color in [(g0, target_labels[0], colors[0]),
                                 (g1, target_labels[1], colors[1])]:
         ax_kde.hist(vals, bins=50, density=True, alpha=0.25, color=color)
@@ -395,7 +395,7 @@ def continuous_vs_binary(df, feature_col, target_col,
     ax_kde.set_title(f"Distribution by {target_col}")
     ax_kde.legend(fontsize=9)
 
-    # ── Box plot ──────────────────────────────────────────────────────
+    #  boxplot 
     box_data = [g0.values, g1.values]
     bp = ax_box.boxplot(box_data, patch_artist=True, widths=0.5,
                         tick_labels=target_labels)
@@ -410,7 +410,7 @@ def continuous_vs_binary(df, feature_col, target_col,
                    marker="D", s=40, label="Mean")
     ax_box.legend(fontsize=9)
 
-    # ── Binned trend ──────────────────────────────────────────────────
+    # binned 
     sub = sub.copy()
     sub["bin"] = pd.qcut(sub[feature_col], q=n_bins, duplicates="drop")
     binned = (sub.groupby("bin", observed=True)[target_col]
@@ -435,7 +435,7 @@ def continuous_vs_binary(df, feature_col, target_col,
 
     plt.show()
 
-    # ── Statistical tests ─────────────────────────────────────────────
+    # stats tests
     U, p_mw = mannwhitneyu(g0, g1, alternative="two-sided")
     r_pb, p_pb = pointbiserialr(sub[target_col], sub[feature_col])
 
@@ -653,7 +653,7 @@ def categorical_vs_categorical(df, col_a, col_b,
     std_res_df = pd.DataFrame(std_res, index=ct.index, columns=ct.columns)
     std_res_top = std_res_df[top_cols]
 
-    # ── Proportions heatmap ───────────────────────────────────────────
+    # heatmap
     prop_cache = f"{cache_prefix}_proportions.png" if cache_prefix else None
 
     if prop_cache and os.path.exists(prop_cache):
@@ -677,7 +677,7 @@ def categorical_vs_categorical(df, col_a, col_b,
             plt.savefig(prop_cache)
         plt.show()
 
-    # ── Residuals heatmap ─────────────────────────────────────────────
+    #  res heatmap 
     res_cache = f"{cache_prefix}_residuals.png" if cache_prefix else None
 
     if res_cache and os.path.exists(res_cache):
