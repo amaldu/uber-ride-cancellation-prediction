@@ -49,6 +49,6 @@ data/raw/*.pbix
 data/raw/Dasboard.gif
 
 # Intermediate GIF recording files
-pipeline_demo.cast
-pipeline_demo.gif
-dashboard_demo.gif
+gifs/pipeline_demo.cast
+gifs/pipeline_demo.gif
+gifs/dashboard_demo.gif

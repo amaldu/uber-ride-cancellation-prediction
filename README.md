@@ -5,7 +5,7 @@ Welcome to my data analysis project on 150,000 Uber bookings from 2024. The goal
 **This repo contains the data pipeline + dashboard. The END-TO-END problem framing lives here: [CASE STUDY](./CASE_STUDY.md)** 
 A CRISP-DM including decisions & logic on business framing, cost-based metric design, EDA findings, modelling, tuning, evaluation, deployment and monitoring
 
-![Pipeline and dashboard demo](demo.gif)
+![Pipeline and dashboard demo](gifs/demo.gif)
 
 ## Run my project
 
