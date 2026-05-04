@@ -1,0 +1,3 @@
+databases:
+  - database_name: Uber Rides
+    sqlalchemy_uri: sqlite:////app/data/rides.db
