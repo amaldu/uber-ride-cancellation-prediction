@@ -36,17 +36,19 @@ This documents explains the step-by-step logic & workflow following CRISP-DM ada
 - [4. Modelling](#4-modelling)
   - [4.1 Class imbalance](#41-class-imbalance)
   - [4.2 Baseline](#42-baseline)
-  - [4.1 Modelling strategy options](#41-modelling-strategy-options)
-    - [1. Pure ML solution](#1-pure-ml-solution)
-      - [Pipeline 1: Logistic Regression](#pipeline-1-logistic-regression)
-      - [Pipeline 2: LightGBM or XGBoost](#pipeline-2-lightgbm-or-xgboost)
-    - [2. Heuristic + pure ML solution](#2-heuristic--pure-ml-solution)
+  - [4.3 Modelling strategy options](#43-modelling-strategy-options)
+    - [4.3.1 Approeach 1: improve Logistic Regression](#431-approeach-1-improve-logistic-regression)
+    - [4.3.2 Approach 2: LightGBM or XGBoost](#432-approach-2-lightgbm-or-xgboost)
+    - [4.3.3 Approeach 3: take the best of the 3 and add route](#433-approeach-3-take-the-best-of-the-3-and-add-route)
+    - [4.3.4 Approeach 4: improve LightGBM or XGBoost](#434-approeach-4-improve-lightgbm-or-xgboost)
+    - [4.3.5 Approeach 5: tree on negative reference](#435-approeach-5-tree-on-negative-reference)
+    - [4.3.6 Approeach 6...: heuristic + ML](#436-approeach-6-heuristic--ml)
   - [4.4 Calibration](#44-calibration)
-  - [4.5 Cross-validation strategy](#45-cross-validation-strategy)
 - [5. Model Tuning](#5-model-tuning)
 - [6. Evaluation](#6-evaluation)
 - [7. Deployment](#7-deployment)
 - [8. Monitoring](#8-monitoring)
+- [9. Next steps](#9-next-steps)
 ---
 
 # Problem Framing
@@ -318,76 +320,71 @@ Tested whether anything other than is_cancelled predicts vtat_missing and missin
 
 ### Deterministic rules
 There are three rules:
-- if avg_vtat <= 2.9 min, the ride never cancels (0% in 7.693 rows)
-- if avg_vtat > 15 min, the ride always cancels (100% in 3.521 rows)
-- if avg_vtat is missing, the ride always cancels (100% in 10.500 rows)
+- if avg_vtat <= 2.9 min, the ride never cancels 
+- if avg_vtat > 15 min, the ride always cancels 
+- if avg_vtat is missing, the ride always cancels 
 
 
 # 4. Modelling
 
 ## 4.1 Class imbalance
 
-32% positive rate is moderate and I don't plan to resample the data, instead I'll change the class weights in LogR and the scale_pos_weight in trees
+32% positive rate is moderate so I don't plan to resample the data, instead I'll change the class weights in LogR and the scale_pos_weight in trees
 
 ## 4.2 Baseline
 
-These are the 2 references to check:
+I have 3 reference points:
 
-1. Majority class is 68%
-2. Deterministic rules only, already cover approx 2.1k rides in the test set at near 100% precision
+1. Null model: "not cancelled" for every ride means accuracy = 0.68, recall = 0 & profit = 0$. Kept as convention as sanity floor that confirms the model is doing something
+   
+2. Deterministic rules classify around 2,1K rides correctly
+   
+3. Minimal logReg: avg_vtat is not linear so I choose vtat_zone with OHE bc NaNs are MNAR and no ordinal encoding bc steps have no similar size
 
-My decision is to fit a logistic regression only with avg_vtat
+## 4.3 Modelling strategy options
 
-## 4.1 Modelling strategy options
+For a first approach to this project I would try to improve the scores of the Logistic Regression and introduce a tree based model such as LightGBM or XGBoost
 
-### 1. Pure ML solution
-Two pipeline variants:
+Since most customers appear once and only a few have 2-3 rides I commit leakage so I would use StratifiedGroupKFold with groups=customer_id. Either way, 10 folds. Also the target encoding for route is fitted inside each fold to avoid target leakage 
 
-#### Pipeline 1: Logistic Regression
-- vtat_zone one-hot encoded
-- vtat_missing used as is
-- route with target encoding and out-of-fold CV
-- numerical features standardised
+### 4.3.1 Approeach 1: improve Logistic Regression
+- `vtat_zone` one-hot encoded
+- `route` with target encoding and out-of-fold CV
 
-#### Pipeline 2: LightGBM or XGBoost
-- avg_vtat as it is with a -1 sentinel for NaN
-- route with target encoding and out-of-fold CV
-- as a secondary variant, try pickup_location and drop_location passed as native categoricals to LightGBM and see if the tree finds the interaction 
+### 4.3.2 Approach 2: LightGBM or XGBoost
+- `avg_vtat` as it is with a -1 sentinel for NaN
+
+### 4.3.3 Approeach 3: take the best of the 3 and add route
+- `route` with target encoding and out-of-fold CV
   
-### 2. Heuristic + pure ML solution
+### 4.3.4 Approeach 4: improve LightGBM or XGBoost
+- `avg_vtat` as it is with a -1 sentinel for NaN
+- `pickup_location` & `drop_location` passed as native categoricals
+  
+### 4.3.5 Approeach 5: tree on negative reference
+- `route` with target encoding and out-of-fold CV
 
-Good bc easy rides are classified, but it needs maintenance of two systems 
+### 4.3.6 Approeach 6...: heuristic + ML
+- choose the best ML pipelines and retrain them on the dataset not affected by rules
+
 
 ## 4.4 Calibration
 
-Plan:
-- Use CalibratedClassifierCV 
-- Check the reliability diagram
-- Verify the final reliability diagram
+All the models need calibration since I'm balancing class weights in LogRegression and trees are typically overconfident. 
 
-
-## 4.5 Cross-validation strategy
-
-Since most customers appear once and only a few have 2-3 rides I commit leakage so I would use StratifiedGroupKFold with groups=customer_id. Either way, 5 folds. Also the target encoding for route is fitted inside each fold to avoid target leakage 
+Due to the size of the data I would calibrate them using isotonic method on the training folds and plot the reliability diagram 
 
 # 5. Model Tuning
 
-Hyperparameter search using cross-validated F2-score and Optuna
-
-Things to take into account:
-
-- Reuse the StratifiedGroupKFold splits from 4.5 so tuning sees the same CV as training
-- Optimise F2 on the out-of-fold predictions
-- Tune the decision threshold that maximises expected profit 
+Hyperparameter search using cross-validated F2-score and Optuna to tune the decision threshold that maximises expected profit 
 
 # 6. Evaluation
 
-Besides scoring on the metrics in section 1.5, I have to:
+Besides scoring on the metrics mentioned above, I have to:
 
 - Slice errors and flag those worse than the overall model
 - Check proxy groups and confirm precision stays > 25% in each
 - Sanity checks before shipping: reliability diagram on the diagonal, no single feature dominating importance, profit drop if route is removed
-
 
 # 7. Deployment
 
@@ -395,7 +392,8 @@ The model scores in real time and flags it when the probability passes the thres
 
 The steps I would take would be:
 
-1.  Ship one artifact with preprocessing, calibrator and model & serve it as a REST endpoint under 100ms
+1.  Retrain the best model + hyperparams on all the data 
+2.  Ship one artifact with preprocessing, calibrator and model & serve it as a REST endpoint under 100ms
 - Confirm that all model features are available at booking time
 - Roll out in shadow mode, then 5% canary, then full all with blue/green for instant rollback
 - Set auto-rollback rules based on business, technical and infrastructure metrics 
@@ -411,3 +409,10 @@ Things to look at:
 - Track data health and drift of present features daily
 - Track weekly metrics and set threshold for recall and precision
 - Retrain on drift or business constraint thresholds 
+
+# 9. Next steps
+
+- Reframe the problem to better match the business requirements
+- Find more data
+- Improve feature engineering & try feat reduction if they go out of hand
+- Try other models & ensemble 
