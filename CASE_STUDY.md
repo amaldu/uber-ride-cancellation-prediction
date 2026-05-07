@@ -393,10 +393,9 @@ The model scores in real time and flags it when the probability passes the thres
 The steps I would take would be:
 
 1.  Retrain the best model + hyperparams on all the data 
-2.  Ship one artifact with preprocessing, calibrator and model & serve it as a REST endpoint under 100ms
+2.  Ship one artifact with preprocessing, model  calibrated & serve it as a REST endpoint under 100ms
 - Confirm that all model features are available at booking time
-- Roll out in shadow mode, then 5% canary, then full all with blue/green for instant rollback
-- Set auto-rollback rules based on business, technical and infrastructure metrics 
+- Roll out in shadow mode, then 5% canary, then move to full with blue/green for instant rollback with rules based on business, technical and infrastructure metrics 
 - Set A/B tests
 
 # 8. Monitoring
