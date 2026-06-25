@@ -43,12 +43,12 @@ This documents explains the step-by-step logic & workflow following CRISP-DM ada
     - [4.3.4 Approeach 4: improve LightGBM or XGBoost](#434-approeach-4-improve-lightgbm-or-xgboost)
     - [4.3.5 Approeach 5: tree on negative reference](#435-approeach-5-tree-on-negative-reference)
     - [4.3.6 Approeach 6...: heuristic + ML](#436-approeach-6-heuristic--ml)
-  - [4.4 Calibration](#44-calibration)
 - [5. Model Tuning](#5-model-tuning)
-- [6. Evaluation](#6-evaluation)
-- [7. Deployment](#7-deployment)
-- [8. Monitoring](#8-monitoring)
-- [9. Next steps](#9-next-steps)
+- [6. Calibration](#6-calibration)
+- [7. Evaluation](#7-evaluation)
+- [8. Deployment](#8-deployment)
+- [9. Monitoring](#9-monitoring)
+- [10. Next steps](#10-next-steps)
 ---
 
 # Problem Framing
@@ -368,17 +368,17 @@ Since most customers appear once and only a few have 2-3 rides I commit leakage 
 - choose the best ML pipelines and retrain them on the dataset not affected by rules
 
 
-## 4.4 Calibration
+# 5. Model Tuning
+
+Hyperparameter search using cross-validated F2-score and Optuna to tune the decision threshold that maximises expected profit 
+
+# 6. Calibration
 
 All the models need calibration since I'm balancing class weights in LogRegression and trees are typically overconfident. 
 
 Due to the size of the data I would calibrate them using isotonic method on the training folds and plot the reliability diagram 
 
-# 5. Model Tuning
-
-Hyperparameter search using cross-validated F2-score and Optuna to tune the decision threshold that maximises expected profit 
-
-# 6. Evaluation
+# 7. Evaluation
 
 Besides scoring on the metrics mentioned above, I have to:
 
@@ -386,7 +386,7 @@ Besides scoring on the metrics mentioned above, I have to:
 - Check proxy groups and confirm precision stays > 25% in each
 - Sanity checks before shipping: reliability diagram on the diagonal, no single feature dominating importance, profit drop if route is removed
 
-# 7. Deployment
+# 8. Deployment
 
 The model scores in real time and flags it when the probability passes the threshold
 
@@ -398,7 +398,7 @@ The steps I would take would be:
 - Roll out in shadow mode, then 5% canary, then move to full with blue/green for instant rollback with rules based on business, technical and infrastructure metrics 
 - Set A/B tests
 
-# 8. Monitoring
+# 9. Monitoring
 
 Labels come in within minutes to hours, so live performance can be tracked without delay
 
@@ -409,7 +409,7 @@ Things to look at:
 - Track weekly metrics and set threshold for recall and precision
 - Retrain on drift or business constraint thresholds 
 
-# 9. Next steps
+# 10. Next steps
 
 - Reframe the problem to better match the business requirements
 - Find more data
